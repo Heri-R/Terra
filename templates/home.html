@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+{% endblock %}
+
+{% block title %} 
+home page 
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <a href="{{url_for('Client')}}">
+        <div class="sections one">
+            <h4>Clients</h4>
+        </div>
+    </a>
+    <a href="{{url_for('Disease')}}">
+        <div class="sections two">
+            <h4>Diseases</h4>
+    </div>
+    </a>
+    <a href="{{url_for('Medicines')}}">
+        <div class="sections three">
+            <h4>Medicine</h4>
+    </div>
+    </a>
+</div>
+{% endblock %}

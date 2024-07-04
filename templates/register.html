@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{%block head%}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/register.css')}}">
+{%endblock%}
+
+{%block title%} 
+register page 
+{%endblock%}
+
+{%block body%}
+<div class="container">
+    <h4>TERRA NATURAL HERBS</h4>
+    <div class="form-box">
+        <h4>Register</h4>
+        <form action="{{url_for('register')}}" method="POST">
+            <input type="text" name="firstname1" id="" placeholder="Enter First Name">
+            <input type="text" name="lastname2" id="" placeholder="Enter Last Name">
+            <input type="email" name="email3" id="" placeholder="Enter Email address">
+            <input type="password" name="password4" id="" placeholder="Enter New Password">
+            <input type="password" name="password5" id="" placeholder="Confirm Password">
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    <p>Already have an account? <a href="{{url_for('Login')}}">Login</a></p>
+</div>
+{%endblock%}

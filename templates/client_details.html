@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/client_detail.css')}}">
+{% endblock %}
+
+{% block title %} 
+clients detal page
+{% endblock %}
+
+{% block body %}
+<body>
+    <h1>Clients Details</h1>
+    <p>ID: {{clients_details.id}} </p>
+    <p>Name: {{clients_details.full_name}} </p>
+    {% if clients_details.location %}
+    <p>Location: {{clients_details.location}}</p>
+    {% endif %}
+    <p>Phone Number 1: {{clients_details.phone_number_1}}</p>
+    {% if clients_details.phone_number_2 %}
+    <p>Phone Number 2: {{clients_details.phone_number_2}}</p>
+    {% endif %}
+</body>
+{% endblock %}

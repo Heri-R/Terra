@@ -20,12 +20,14 @@ medicine page
  <table class = "table">
   <tr>
      <th>id</th>
-     <th>name</th>
+     <th>Name</th>
+     <th>Price</th>
   </tr>
   {% for medicine in medicines %}
    <tr class = "record">
     <td>{{medicine.id}}</td>
     <td>{{medicine.name}}</td>
+    <td>{{medicine.price}}</td>
     <td id="action">
        <a href="{{ url_for('remove_medicine', medicine_id=medicine.id) }}">Remove</a>
        <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a>

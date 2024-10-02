@@ -1,5 +1,5 @@
 from flask import Flask,flash,request,redirect,url_for,render_template
-from models import db,Staff,Clients,Diseases,Medicine
+from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation
 from flask_migrate import Migrate
 from config import Config
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
@@ -163,6 +163,48 @@ def edit_medicine(medicine_id):
   else:
     return render_template("new_medicine.html", medicine=medicine)
 
+@app.route("/prescribe-patient/<int:patient_id>", methods=["POST"])
+def prescribe_patient(patient_id):
+  patient = Clients.query.get(patient_id)
+  medicine = Medicine.query.get(request.form.get("medication"))
+  """
+  check the quantity of the medicine to be prescribed
+  if the quantity is greater than 0 or if the quantity is less than 1
+  if it is -> presribe
+  update the quantity -> deduct
+  if it's not flash a message
+  """
+  if medicine.quantity > 0:
+    client_medicine = ClientMedicine(
+      client_id = patient.id,
+      medicine_id = medicine.id
+    )
+    db.session.add(client_medicine)
+    medicine.quantity = medicine.quantity - 1
+    db.session.commit()
+    flash("Medicine prescribed successfully", category="success")
+  else:
+    flash("Out of Stock kindly restock", category="warning")
+    return redirect(url_for('medicine_stock',medicine_id=medicine.id))
+  
+
+
+  return redirect(url_for('clients_detail', clients_id=patient.id))
+
+@app.route("/medicine-stock/<int:medicine_id>", methods=["POST","GET"])    
+def medicine_stock(medicine_id):
+  medicine = Medicine.query.get(medicine_id)
+  if request.method == "POST":
+    stock_amount = request.form.get("stock")
+    medicine.quantity = stock_amount
+    db.session.commit()
+    flash("Stock added succesfully", category='success')
+
+  return render_template("stock.html",medicine=medicine)
+
+ 
+
+
 @app.route("/remove-medicine/<int:medicine_id>")
 def remove_medicine(medicine_id):
   medicine = Medicine.query.get(medicine_id)
@@ -177,9 +219,15 @@ def remove_medicine(medicine_id):
 @app.route("/Client_details/<int:clients_id>")
 def clients_detail(clients_id):
   clients_details = Clients.query.get(clients_id)
+  all_diseases = Diseases.query.all()
+  all_medicines = Medicine.query.all()
+  locations = ClientLocation.query.all()
+  client_diseases = ClientDisease.query.filter_by(client_id=clients_details.id).all()
+  client_medicines= ClientMedicine.query.filter_by(client_id=clients_details.id).all()
+
   if not clients_details:
     return "Invalid client ID. No matching client found"
-  return render_template('client_details.html', clients_details=clients_details)
+  return render_template('client_details.html', clients_details=clients_details, all_diseases=all_diseases, client_diseases=client_diseases,all_medicines=all_medicines,client_medicines=client_medicines, locations=locations)
 
 @app.route("/edit-client/<int:client_id>", methods=["POST", "GET"])
 def edit_client(client_id):
@@ -192,11 +240,50 @@ def edit_client(client_id):
     client.location = request.form.get("loc1")
     client.phone_number_1 = request.form.get("phone1")
     client.phone_number_2 = request.form.get("phone2")
+    client.age = request.form.get("age")
+    client.gender = request.form.get("Gender")
     db.session.commit()
     flash("Client record updated successfully", category="success")
     return redirect(url_for('Client'))
   else:
     return render_template("new_patient.html", client=client)
+
+@app.route("/update-location/<int:patient_id>", methods=["POST"])
+def update_location(patient_id):
+  """
+  ID the client - From DB
+  handle the form submission
+    - Route must handle POST request
+    - 1st input - location input field (name of 'location')
+      - The location ID - INT
+    - 2nd input - specific location input field (name of 'specific_location')
+      - Name of the specific location - String
+
+  Save our db - with the changes
+  redirect to the client details page
+  """
+  client = Clients.query.get(patient_id)
+  location_name = request.form.get("location")
+  specific_location = request.form.get("specific_location")
+  client.location = location_name
+  client.specific_location = specific_location
+
+  db.session.commit()
+  flash("Loaction saved succesfully", category="success")
+  return redirect(url_for('clients_detail',clients_id=client.id))
+
+@app.route("/diagnose-patient/<int:patient_id>", methods=["POST"])
+def diagnose_patient(patient_id):
+  patient = Clients.query.get(patient_id)
+  disease = Diseases.query.get(request.form.get("disease"))
+  client_disease = ClientDisease(
+    client_id = patient.id,
+    disease_id = disease.id
+  )
+  db.session.add(client_disease)
+  db.session.commit()
+  flash("Patient diaginosed successfully", category="success")
+  return redirect(url_for('clients_detail', clients_id=patient.id))
 
 @app.route("/Client_delete/<int:clients_id>")
 def clients_delete(clients_id):
@@ -215,15 +302,17 @@ def clients_delete(clients_id):
 def New_patient():
   if request.method=="POST":
     full_name = request.form.get("fname")
-    location = request.form.get("loc1")
     Phonenumber1 = request.form.get("phone1")
     Phonenumber2 = request.form.get("phone2")
+    age = request.form.get("age")
+    gender = request.form.get("Gender")
 
     Add_patient = Clients(
       full_name = full_name,
-      location = location,
       phone_number_1 = Phonenumber1,
       phone_number_2 = Phonenumber2,
+      age = age,
+      gender = gender,
     )
     db.session.add(Add_patient)
     db.session.commit()
@@ -232,10 +321,8 @@ def New_patient():
     return redirect(url_for('Client'))
   return render_template('new_patient.html')
 
-
 @app.route("/New_disease", methods=["GET", "POST"])
 def New_disease():
-
   if request.method == "POST":
     Disease_name=request.form.get("dname")
 
@@ -247,9 +334,6 @@ def New_disease():
     flash("Disease added", category='success')
     return redirect(url_for('Disease'))
   return render_template('new_disease.html')
-
-
-
 
 @app.route("/New_medicine", methods=["GET", "POST"])
 def New_medicine():
@@ -265,9 +349,6 @@ def New_medicine():
     flash("Medicine added", category='success')
     return redirect(url_for('Medicines'))
   return render_template('new_medicine.html')
-
-
-
 
 if __name__ == "__main__":
   app.run(debug=True)

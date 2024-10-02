@@ -8,10 +8,14 @@ Add/Edit/Remove/retrieve records:
   ✅✅✅✅- Clients/diseases/medicine
 
 Processess:
-  - Diagnose a client with a disease
-  - prescribe medication to the client
-  - Calculate total cost for the client
-  - Confirm payment
+  ✅Diagnose a client with a disease
+  ✅prescribe medication to the client
+  ✅update medicine database
+  ✅Calculate total cost for the client
+  ✅Stock management 
+  - Confirm payment and Sales
+  - Feedback 
+
 
 Prerequisites:
   - Generate reports and charts

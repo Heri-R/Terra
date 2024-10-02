@@ -17,14 +17,20 @@ Patient page
     <label for="fname">Full Name</label>
     <input type="text" name="fname" placeholder="Enter Full name" required id="fname">
   
-    <label for="loc1">Location</label>
-    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g">
-  
     <label for="pnumber1">Phone number 1</label>
     <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1">
   
     <label for="pnumber2">Phone number 2</label>
     <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2">
+
+    <label for="age1">Age</label>
+    <input type="number" name="age" placeholder="Enter Age" id="age1">
+ 
+    <label for="gender2">Gender</label>
+    <select name="Gender" id="gender2">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
   
     <button>Submit</button>
   </form>
@@ -44,7 +50,18 @@ Patient page
   
     <label for="pnumber2">Phone number 2</label>
     <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2" value="{{ client.phone_number_2 }}">
-  
+
+    <label for="age1">Age</label>
+    <input type="number" name="age" placeholder="Enter Age" id="age1" value="{{ client.age }}">
+ 
+    <label for="gender2">Gender</label>
+    <select name="Gender" id="gender2">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+
+
+
     <button>Submit</button>
   </form>
 </div>

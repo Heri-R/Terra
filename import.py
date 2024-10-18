@@ -26,11 +26,10 @@ def add_location():
   user_file = open("Locations_data.csv")
   read_files = csv.reader(user_file)
 
-  for region, district, location in read_files:
+  for region, district in read_files:
     new_location = ClientLocation(
       region = region,
       district = district,
-      specific_location = location
     )
     db.session.add(new_location)
     db.session.commit()
@@ -61,7 +60,7 @@ def add_medicine():
 
 if __name__ == "__main__":
   with app.app_context():
-    add_clients()
+    # add_clients()
     # add_diseases()
     # add_medicine()
-    # add_location()
+    add_location()

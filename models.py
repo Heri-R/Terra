@@ -57,6 +57,7 @@ class ClientMedicine(db.Model):
   client_id = db.Column(db.Integer(), db.ForeignKey("client_records.id"))
   medicine_id = db.Column(db.Integer(), db.ForeignKey("medicine.id"))
   client_payment_id = db.Column(db.Integer(), db.ForeignKey("client_payment.id"))
+  is_paid = db.Column(db.Boolean(), default=False)
 
 class ClientPayment(db.Model):
   __tablename__ = 'client_payment'

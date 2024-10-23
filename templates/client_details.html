@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block title %} 
-clients detal page
+clients detail page
 {% endblock %}
 
 {% block body %}
@@ -45,7 +45,9 @@ clients detal page
                 {% for client_medicine in client_medicines %}
                 {% for medicine in all_medicines if medicine.id == client_medicine.medicine_id %}
                 {{ total.append(medicine.price) or "" }}
-                <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
+                <div class="prescription">
+                    <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
+                </div>
                 {% endfor %}
                 {% endfor %}
             </div>

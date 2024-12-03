@@ -1,0 +1,64 @@
+.client-details, .medicine {
+  margin-top: 1.5rem;
+  height: 76vh;
+  overflow-y: scroll;
+  padding-right: 0.3rem;
+}
+
+.medicine-header,.client-header{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+table {
+  min-width: 100%;
+  outline: 1px solid red;
+}
+
+#th {
+  background-color: var(--light-green);
+}
+
+th {
+  color: var(--white);
+}
+
+.add_button{
+  float: left;
+
+}
+
+td, th {
+  padding: 0.5rem;
+  
+}
+
+th {
+  text-align: left;
+}
+
+.prescription-box{
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+  align-items: center;
+}
+
+.prescription-details {
+  flex-grow: 1;
+  background-color: var(--dark-green);
+  padding: 1rem;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.prescription-details p, .prescription-details h4 {
+  color: var(--white);
+}
+
+.menu_dashboard, button{
+  cursor: pointer;
+}

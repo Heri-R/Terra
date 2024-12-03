@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/clients_details.css')}}">
+{% endblock %}
+
+{% block title %} 
+clients detail page
+{% endblock %}
+
+{% block body %}
+
+<div class="container2">
+    <h1 class="client-details-heading">Clients Details</h1>
+    
+    <div class="client-details">
+        <p>ID: {{clients_details.id}} </p>
+        <p>Name: {{clients_details.full_name}} </p>
+        <p> Gender: {{clients_details.gender}} </p>
+        <p> Age: {{clients_details.age}} </p>
+        {% if clients_details.location %}
+        {% for location in locations %}
+        {% if location.id == clients_details.location %}
+        <p>Location: {{location.region}}, {{ location.district }}</p>
+        {% endif %}
+        {% endfor %}
+        <p>Specific Location: {{clients_details.specific_location}}</p>
+        {% endif %}
+        <p>Phone Number 1: {{clients_details.phone_number_1}}</p>
+        {% if clients_details.phone_number_2 %}
+        <p>Phone Number 2: {{clients_details.phone_number_2}}</p>
+        {% endif %}
+    </div>
+    
+        
+        <!-- <div class="client-location">
+            <h4>Client Location</h4>
+            
+            <form action="{{url_for('update_location',patient_id=clients_details.id)}}" method="post">
+                <select class="disease-search" name="location">
+                    {% for location in locations %}
+                    <option value="{{ location.id }}">{{ location.region }}, {{ location.district }} {{ location.specific_location }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="specific_location" placeholder="Enter Your Specific Location" required>
+                <button type="submit">Update</button>
+            </form>
+        </div>
+        <hr> -->
+    <div class="client-disease">
+            <h4>Diagnose Patient</h4>
+            
+            <form action="{{ url_for('diagnose_patient', patient_id=clients_details.id) }}" method="post">
+                <select class="disease-search" name="disease">
+                    {% for disease in all_diseases %}
+                    <option value="{{ disease.id }}">{{ disease.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Diagnose</button>
+            </form>
+            <hr>
+            {% if client_diseases %}
+            {% for client_disease in client_diseases %}
+            {% for disease in all_diseases if disease.id == client_disease.disease_id %}
+            <p>{{ disease.name }}</p>
+            {% endfor %}
+            {% endfor %}
+            {% endif %}
+            <hr>
+    </div>
+    <div class="medicine">
+        <h4>Medicine</h4>
+
+        <form action="{{url_for('prescribe_patient',patient_id=clients_details.id) }}" method="post">
+                <select class="disease-search" name="medication">
+                    {% for medicine in all_medicines %}
+                    <option value="{{ medicine.id }}">{{ medicine.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Prescribe</button>
+        </form>
+    </div>
+</div>
+
+    
+    {% endblock %}
+    
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>

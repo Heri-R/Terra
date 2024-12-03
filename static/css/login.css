@@ -1,0 +1,12 @@
+.form-box {
+  min-width: 30%;
+  
+}
+
+form {
+  grid-template-columns: 1fr;
+}
+
+form button {
+  grid-column: 1/2;
+}

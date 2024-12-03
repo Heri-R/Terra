@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{%block head%}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/register.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/login.css')}}">
+{%endblock%}
+
+{%block title%} 
+login page 
+{%endblock%}
+
+{%block body%}
+<div class="container-box">
+    <div class="form-box">
+        <h1>Login</h1>
+        <form action="{{url_for('Login')}}" method="POST">
+            <div class="input">
+                <label for="email">Email Address</label>
+                <input type="email" name="email3" id="email" placeholder="Enter Email address">
+            </div>
+            <div class="input">
+                <label for="password">Password</label>
+                <input type="password" name="password4" id="password" placeholder="Enter password">
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="info">
+            <p>Don't have an account? <a href="{{url_for('register')}}">Sign Up</a></p>
+        </div>
+    </div>
+</div>
+{%endblock%}

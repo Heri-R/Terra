@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+{%block head%}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/base.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <title>{%block title%}{%endblock%}</title>
+</head>
+{%endblock%}
+<body>
+  <div class="container">
+    <header> 
+      <a href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='image/logo.jpg') }}" alt="Terra Natural Herbs Logo" class="header-logo">
+      </a>
+      <h1> TERRA NATURAL HERBS</h1>
+
+      {% if current_user.is_authenticated %}
+      <div class="link2">
+        <p class="username">Welcome, <b>{{current_user.email}}</b></p>
+        <p><a href="{{url_for('Logout')}}">LOGOUT</a></p>
+      </div>
+      {% else %}
+      <div class="link1">
+        <a href="{{url_for('register')}}">Sign up<a>
+        <a href="{{url_for('Login')}}">Sign in</a>
+      </div>
+      {% endif %}
+    </header>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="tops">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        <p id="flash">{{ message }}</p>
+        <span id="close">&times</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <div class="content-box">
+      <div class="side-nav-menu">
+        {% block nav %} {% endblock %}
+      </div>
+      <div class="content-area">
+        {% block body %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static',filename='js/base.js') }}"></script>
+</body>
+</html>

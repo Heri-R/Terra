@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/patient.css')}}">
+{% endblock %}
+
+{% block title %} 
+Patient page 
+{% endblock %}
+
+{% block body %}
+{% if not client %}
+<div class="new-patient">
+  <h1> Patients details</h1>
+  <form action="{{url_for('New_patient')}}"method="POST"> 
+    <label for="fname">Full Name</label>
+    <input type="text" name="fname" placeholder="Enter Full name" required id="fname">
+  
+    <label for="pnumber1">Phone number 1</label>
+    <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1">
+  
+    <label for="pnumber2">Phone number 2</label>
+    <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2">
+
+    <label for="age1">Age</label>
+    <input type="number" name="age" placeholder="Enter Age" id="age1">
+ 
+    <label for="gender2">Gender</label>
+    <select name="Gender" id="gender2">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+  
+    <button>Submit</button>
+  </form>
+</div>
+{% else %}
+<div class="edit-patient">
+  <h1>Edit Patient Details</h1>
+  <form action="#"method="POST"> 
+    <label for="fname">Full Name</label>
+    <input type="text" name="fname" placeholder="Enter Full name" required id="fname" value="{{ client.full_name }}">
+  
+    <label for="loc1">Location</label>
+    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g" value="{{ client.location }}">
+  
+    <label for="pnumber1">Phone number 1</label>
+    <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1" value="{{ client.phone_number_1 }}">
+  
+    <label for="pnumber2">Phone number 2</label>
+    <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2" value="{{ client.phone_number_2 }}">
+
+    <label for="age1">Age</label>
+    <input type="number" name="age" placeholder="Enter Age" id="age1" value="{{ client.age }}">
+ 
+    <label for="gender2">Gender</label>
+    <select name="Gender" id="gender2">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+
+
+
+    <button>Submit</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

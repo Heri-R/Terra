@@ -1,0 +1,52 @@
+.container2{
+  display: grid;
+  border-radius: 0.8rem;
+  gap:3rem;
+
+}
+
+.client-details{
+  border: 2px;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background-color: var(--dark-green);
+}
+
+p,h4{
+  color: var(--white);
+  font-family: var(--font);
+}
+
+.client-details-heading{
+  color: var(--black);
+}
+
+
+.client-disease {
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background-color: var(--dark-green);
+}
+
+.medicine{
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background-color: var(--dark-green);
+
+}
+
+.search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+ 
+.total-box{
+  color: rgba(59, 190, 207, 0.856);
+}
+
+#paid{
+  color:rgb(10, 207, 10)
+}

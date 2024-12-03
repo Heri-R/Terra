@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+{% endblock %}
+
+{% block title %} 
+home page 
+{% endblock %}
+
+{% block nav %}
+<div class="menu_dashboard">
+  <div class="menu-item" onclick="openTab(event, 'dashboard')">
+  <h4 id="menu-heading">Dashboard</h4>
+  </div>
+  <div class="menu-item active" onclick="openTab(event, 'clients')">
+  <h4 id="menu-heading">Clients</h4>
+  </div>
+  <div class="menu-item" onclick="openTab(event, 'medicine')">
+  <h4 id="menu-heading">Medicine</h4>
+  </div>
+  <div class="menu-item" onclick="openTab(event, 'prescription')">
+  <h4 id="menu-heading">Prescription</h4>
+  </div>
+  <div class="menu-item"onclick="openTab(event, 'Payment')">
+  <h4 id="menu-heading">Payment</h4>
+  </div>
+</div>
+{% endblock %}
+
+{% block body %}
+<div id="dashboard" class="tab-content">
+    <div class="tab-content-header">
+      <h4>Dashboard</h4>
+    </div>
+</div>
+<div id="clients" class="tab-content active">
+<div class="tab-content-header">
+   <div class="client-header">
+     <h4 id="heading">Clients</h4>
+     <a href="{{url_for('New_patient')}}">
+       <button>Add Patient</button>
+     </a>
+   </div> 
+    <div class="client-details">
+        <table>
+            <tr id="th">
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Phone Number</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+            {% for client in clients %}
+            <tr>
+                <td>{{ client.id }}</td>
+                <td>
+                    <a href="{{url_for('clients_detail',clients_id=client.id)}}">
+                        {{ client.full_name }}
+                    </a>
+                </td>
+                <td>{{ client.age }}</td>
+                <td>{{ client.gender }}</td>
+                <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
+                <td>{{ client.specific_location }}</td>
+                <td id="action">
+                    <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
+                    <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</div>
+<div id="medicine" class="tab-content">
+<div class="tab-content-header">
+    <div class="medicine-header">
+      <h4>Medicine</h4>
+      <a href ="{{url_for('New_medicine')}}">
+        <button id="add_button">Add Medicine</button>
+      </a>
+    </div>
+    <div class="medicine">
+        <table>
+            <tr id="th">
+              <th>ID</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Action</th>
+            </tr>
+         {% for medicine in medicines %}
+          <tr>
+            <td>{{ medicine.id }}</td>
+            <td>{{ medicine.name }}</td>
+            <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
+            <td id="action">
+              <a href="{{ url_for('remove_medicine', medicine_id=medicine.id) }}">Remove</a>
+              <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a></td>
+          </tr>
+         {% endfor %}
+        </table>
+    </div>
+</div>
+</div>
+<div id="prescription" class="tab-content">
+<div class="tab-content-header">
+  <h4>Prescription</h4>
+  <div class="prescription-box">
+    {% for client_medicine in client_medicines %}
+    {% set total = [] %}
+    <div class="prescription-details">
+      {% for medicine in medicines if medicine.id == client_medicine.medicine_id %}
+      {{ total.append(medicine.price) or "" }}
+      <div class="prescription">
+        <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
+      </div>
+      {% endfor %}
+      <div class="prescription-client">
+        {% for client in clients if client.id == client_medicine.client_id %}
+        <p>{{ client.full_name }}</p>
+        {% endfor %}
+      </div>
+      <div class="total-box">
+        <h4>{{ "Tsh {:,}".format(total|sum) }}</h4>
+      </div>
+      <div class="payment">
+        <a href="#">
+          <button>PAID</button>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+</div>
+<div id="Payment" class="tab-content">
+<div class="tab-content-header">
+    <h4>Payment</h4>
+</div>
+</div>
+{% endblock %}

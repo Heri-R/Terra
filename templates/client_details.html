@@ -73,17 +73,19 @@ clients detail page
         <h4>Medicine</h4>
 
         <form action="{{url_for('prescribe_patient',patient_id=clients_details.id) }}" method="post">
-                <select class="disease-search" name="medication">
-                    {% for medicine in all_medicines %}
-                    <option value="{{ medicine.id }}">{{ medicine.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Prescribe</button>
+            <select class="disease-search" name="medication">
+                {% for medicine in all_medicines %}
+                <option value="{{ medicine.id }}">{{ medicine.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Prescribe</button>
         </form>
+        <a href="{{ url_for('home') }}">
+            <button>Complete</button>
+        </a>
     </div>
 </div>
+  
+{% endblock %}
 
-    
-    {% endblock %}
-    
-    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>

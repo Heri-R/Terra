@@ -1,5 +1,5 @@
 from flask import Flask,flash,request,redirect,url_for,render_template
-from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment
+from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, Prescriptions
 from flask_migrate import Migrate
 from config import Config
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
@@ -180,19 +180,36 @@ def prescribe_patient(patient_id):
   if it's not flash a message
   """
   if medicine.quantity > 0:
-    client_medicine = ClientMedicine(
-      client_id = patient.id,
-      medicine_id = medicine.id
-    )
-    db.session.add(client_medicine)
-    medicine.quantity = medicine.quantity - 1
-    db.session.commit()
+    exisiting_prescription = ClientMedicine.query.filter_by(client_id=patient.id, is_paid=False).first()
+
+    if not exisiting_prescription:
+      client_medicine = ClientMedicine(
+        client_id = patient.id,
+      )
+      db.session.add(client_medicine)
+      db.session.commit()
+      new_prescription = Prescriptions(
+        medicine_id = medicine.id,
+        client_medicine_id = client_medicine.id
+      )
+      db.session.add(new_prescription)
+      medicine.quantity = medicine.quantity - 1
+      db.session.commit()
+    else:
+      new_prescription = Prescriptions(
+        medicine_id = medicine.id,
+        client_medicine_id = exisiting_prescription.id
+      )
+      db.session.add(new_prescription)
+      db.session.commit()
+      medicine.quantity = medicine.quantity - 1
+      db.session.commit()
     flash("Medicine prescribed successfully", category="success")
   else:
     flash("Out of Stock kindly restock", category="warning")
     return redirect(url_for('medicine_stock',medicine_id=medicine.id))
 
-  return redirect(url_for('home'))
+  return redirect(url_for('clients_detail', clients_id=patient.id))
 
 @app.route("/medicine-payment/<int:client_id>")
 def medicine_payment(client_id):
@@ -205,8 +222,9 @@ def medicine_payment(client_id):
   if not client:
     flash("Client not found", category="danger")
     return redirect(url_for("home"))
-  client_pescription = ClientMedicine.query.filter_by(client_id = client.id, is_paid = False).all()
-  total = sum([medicine.price for medicine in Medicine.query.all() for prescription in client_pescription if medicine.id == prescription.medicine_id])
+  client_prescription = ClientMedicine.query.filter_by(client_id = client.id, is_paid = False).first()
+  prescriptions = Prescriptions.query.filter_by(client_medicine_id = client_prescription.id).all()
+  total = sum([medicine.price for medicine in Medicine.query.all() for prescription in prescriptions if medicine.id == prescription.medicine_id])
   new_payment = ClientPayment(
     amount = total,
     is_paid = True,
@@ -214,9 +232,8 @@ def medicine_payment(client_id):
   )
   db.session.add(new_payment)
   db.session.commit()
-  for prescption in client_pescription:
-    prescption.client_payment_id = new_payment.id
-    prescption.is_paid = True 
+  client_prescription.client_payment_id = new_payment.id
+  client_prescription.is_paid = True 
   db.session.commit()
   flash("Payment successfull", category="success")
   return redirect(url_for("clients_detail", clients_id=client.id))

@@ -42,8 +42,8 @@ class Medicine(db.Model):
   id = db.Column(db.Integer(), primary_key=True)
   name = db.Column(db.Text(), nullable=False)
   price = db.Column(db.Integer(), default=0)
-  quantity = db.Column(db.Integer())
-  client_medicine = db.relationship("ClientMedicine", backref="client_medicine", lazy=True)
+  quantity = db.Column(db.Integer(), default=0)
+  prescription = db.relationship("Prescriptions", backref="prescription_medicine", lazy=True)
 
 class ClientDisease(db.Model):
   __tablename__ = 'client_disease'
@@ -55,9 +55,15 @@ class ClientMedicine(db.Model):
   __tablename__ = 'client_medicine'
   id = db.Column(db.Integer(), primary_key=True)
   client_id = db.Column(db.Integer(), db.ForeignKey("client_records.id"))
-  medicine_id = db.Column(db.Integer(), db.ForeignKey("medicine.id"))
   client_payment_id = db.Column(db.Integer(), db.ForeignKey("client_payment.id"))
   is_paid = db.Column(db.Boolean(), default=False)
+  prescription = db.relationship("Prescriptions", backref="prescriptions", lazy=True)
+
+class Prescriptions(db.Model):
+  __tablename__ = 'prescriptions'
+  id = db.Column(db.Integer(), primary_key=True)
+  medicine_id = db.Column(db.Integer(), db.ForeignKey("medicine.id"))
+  client_medicine_id = db.Column(db.Integer(), db.ForeignKey("client_medicine.id"))
 
 class ClientPayment(db.Model):
   __tablename__ = 'client_payment'

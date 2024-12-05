@@ -112,11 +112,13 @@ home page
     {% for client_medicine in client_medicines %}
     {% set total = [] %}
     <div class="prescription-details">
-      {% for medicine in medicines if medicine.id == client_medicine.medicine_id %}
+      {% for prescription in client_medicine.prescription %}
+      {% for medicine in medicines if medicine.id == prescription.medicine_id %}
       {{ total.append(medicine.price) or "" }}
       <div class="prescription">
         <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
       </div>
+      {% endfor %}
       {% endfor %}
       <div class="prescription-client">
         {% for client in clients if client.id == client_medicine.client_id %}
@@ -127,7 +129,7 @@ home page
         <h4>{{ "Tsh {:,}".format(total|sum) }}</h4>
       </div>
       <div class="payment">
-        <a href="#">
+        <a href="{{ url_for('medicine_payment', client_id=client_medicine.client_id) }}">
           <button>PAID</button>
         </a>
       </div>

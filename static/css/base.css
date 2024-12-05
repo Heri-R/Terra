@@ -81,8 +81,16 @@ header {
   max-height: max-content;
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Add some space between the logo and the text */
+}
+
+/* Logo styles */
 .header-logo {
-  max-height: 5.2rem;
+  width: 95px; /* Adjust logo size */
+  height: 5.2rem;
 }
 
 .content-box {

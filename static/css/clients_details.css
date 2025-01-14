@@ -28,6 +28,12 @@ p,h4{
   background-color: var(--dark-green);
 }
 
+.client-location {
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background-color: var(--dark-green);
+}
+
 .medicine{
   padding: 1rem;
   border-radius: 0.8rem;

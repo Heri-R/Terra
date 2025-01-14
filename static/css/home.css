@@ -64,6 +64,30 @@ th {
   color: var(--white);
 }
 
+.payment-box{
+  margin-top: 1rem;
+  display:flex;
+  gap: 3rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payment{
+  flex-grow: 1;
+  background-color: var(--dark-green);
+  padding: 1rem;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.payment-status p{
+ color: var(--light-green);
+}
+
+.payment p, .payment h4 {
+  color: var(--white);
+}
+
 .menu_dashboard, button{
   cursor: pointer;
 }

@@ -51,7 +51,7 @@ home page
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Phone Number</th>
-                <th>Location</th>
+                <th>Specific location</th>
                 <th>Actions</th>
             </tr>
             {% for client in clients %}
@@ -109,7 +109,7 @@ home page
 <div class="tab-content-header">
   <h4>Prescription</h4>
   <div class="prescription-box">
-    {% for client_medicine in client_medicines %}
+    {% for client_medicine in client_medicines if client_medicine.is_paid == False %}
     {% set total = [] %}
     <div class="prescription-details">
       {% for prescription in client_medicine.prescription %}
@@ -139,8 +139,24 @@ home page
 </div>
 </div>
 <div id="Payment" class="tab-content">
-<div class="tab-content-header">
+ <div class="tab-content-header">
     <h4>Payment</h4>
-</div>
+    <div class="payment-box">
+      {% for payment in payments %}
+      <div class="payment">
+        <h4>Amount: {{"Tsh {:,}".format(payment.amount)}}</h4>
+        <p>Date Paid: {{ payment.date_paid.strftime("%d/%m/%Y at %I:%M %p") }}</p>
+        <p>Client: 
+          {% for client_medicine in client_medicines if client_medicine.client_payment_id == payment.id %}
+          {% for client in clients if client.id == client_medicine.client_id %}
+          {{ client.full_name }}
+          {% endfor %}
+          {% endfor %}
+        <p class="payment-status"> PAID</p>
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+ </div>
 </div>
 {% endblock %}

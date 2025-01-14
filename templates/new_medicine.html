@@ -2,7 +2,7 @@
 
 {% block head %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('static',filename='css/patient.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/new_medicine.css')}}">
 {% endblock %}
 
 {% block title %} 
@@ -11,9 +11,9 @@ Patient page
 
 {% block body %}
 
-<h1> Medicine</h1>
 {% if not medicine %}
 <div class="new_medicine"> 
+  <h1 class="new_medicine_header"> Medicine</h1>
   <form action="{{url_for('New_medicine')}}"method="POST"> 
     <label for="Mname">Medicine name</label>
         <input type="text" name="Mname" placeholder="Enter Disease name" required id="Mname">

@@ -85,9 +85,10 @@ def Logout():
 def home():
   clients = Clients.query.all()
   medicines = Medicine.query.all()
-  client_medicines = ClientMedicine.query.filter_by(is_paid=False).all()
+  client_medicines = ClientMedicine.query.all()
+  payments = ClientPayment.query.all()
 
-  return render_template("home.html",clients=clients, medicines=medicines, client_medicines=client_medicines)
+  return render_template("home.html",clients=clients, medicines=medicines, client_medicines=client_medicines,payments=payments)
 
 @app.route("/Clients")
 def Client():
@@ -237,6 +238,7 @@ def medicine_payment(client_id):
   db.session.commit()
   flash("Payment successfull", category="success")
   return redirect(url_for("clients_detail", clients_id=client.id))
+
 
 @app.route("/medicine-stock/<int:medicine_id>", methods=["POST","GET"])    
 def medicine_stock(medicine_id):

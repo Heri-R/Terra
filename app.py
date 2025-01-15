@@ -1,5 +1,5 @@
 from flask import Flask,flash,request,redirect,url_for,render_template
-from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, Prescriptions
+from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, Prescriptions, StaffRoles
 from flask_migrate import Migrate
 from config import Config
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
@@ -27,7 +27,8 @@ def load_user(user_id):
 @app.route("/register", methods=["POST","GET"])
 def register():
   staff_count = Staff.query.count()
-  print(staff_count)
+  roles= StaffRoles.query.all()
+
   if request.method=="POST":
     emailaddress=Staff.query.filter_by(email=request.form.get("email3")).first()
     if emailaddress: 
@@ -36,13 +37,14 @@ def register():
     elif request.form.get("password4") != request.form.get("password5"):
       print("This password did not match")
       return redirect(url_for("register"))
-    elif staff_count == 2:
-      flash("Only 2 user accounts are allowed", category="warning")
+    elif staff_count == 4:
+      flash("Only 4 user accounts are allowed", category="warning")
       return redirect(url_for("register"))
     else:
       new_staff=Staff(
         first_name=request.form.get("firstname1"),
         last_name=request.form.get("lastname2"), 
+        role=request.form.get("Roles"), 
         email=request.form.get("email3"), 
         password=bcrypt.generate_password_hash(request.form.get("password4")).decode("utf-8"),      
       )
@@ -51,7 +53,7 @@ def register():
       print("New staff added")
       return redirect(url_for("Login"))
 
-  return render_template("register.html")
+  return render_template("register.html", roles=roles)
 
 @app.route("/Login", methods=["POST","GET"])
 def Login():

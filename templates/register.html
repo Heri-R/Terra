@@ -23,9 +23,18 @@ Register
         <input type="text" name="lastname2" id="lname" placeholder="Enter Last Name">
       </div>
       <div class="input extend">
+        <label for="lname">Select Staff Role</label>
+        <select name="Roles" id="roles">
+          {% for role in roles %}
+          <option value ="{{ role.id }}">{{ role.name }}</option>
+          {% endfor %}
+        </select>
+       </div>
+      <div class="input extend">
         <label for="email">Email Address</label>
         <input type="email" name="email3" id="email" placeholder="Enter Email address">
       </div>
+     
       <div class="input">
         <label for="pass">Password</label>
         <input type="password" name="password4" id="pass" placeholder="Enter New Password">

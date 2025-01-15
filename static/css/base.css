@@ -55,7 +55,7 @@ button {
   color: var(--black);
 }
 
-input {
+input, select {
   background-color: var(--dark-grey);
   border: none;
   color: var(--black);

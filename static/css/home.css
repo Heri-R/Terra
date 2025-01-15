@@ -66,14 +66,13 @@ th {
 
 .payment-box{
   margin-top: 1rem;
-  display:flex;
-  gap: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .payment{
-  flex-grow: 1;
   background-color: var(--dark-green);
   padding: 1rem;
   border-radius: var(--radius-s);

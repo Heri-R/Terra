@@ -3,12 +3,19 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+class StaffRoles(db.Model):
+  __tablename__="staff_roles"
+  id=db.Column(db.Integer(),primary_key=True)
+  name = db.Column(db.String(), nullable=False)
+  staff = db.relationship("Staff", backref="staff_role", lazy=True)
+
 class Staff(db.Model,UserMixin):
   __tablename__="Staff"
   id=db.Column(db.Integer(),primary_key=True)
   first_name=db.Column(db.String(25),nullable=False)
   last_name=db.Column(db.String(25),nullable=False)
   email=db.Column(db.String(50),nullable=False)
+  role = db.Column(db.Integer(), db.ForeignKey('staff_roles.id'))
   password=db.Column(db.String(100),nullable=False)
 
 class Clients(db.Model):

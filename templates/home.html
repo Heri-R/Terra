@@ -15,7 +15,7 @@ home page
 <div class="menu_dashboard">
   {% if current_user.staff_role.name == "Admin" %}
   <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'dashboard')">
-    <h4 id="menu-heading">Dashboard</h4>
+    <h4 id="menu-heading">Statistics</h4>
   </div>
   {% endif %}
   

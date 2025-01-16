@@ -367,7 +367,7 @@ def New_patient():
     db.session.commit()
     flash("Details added", category='success')
     
-    return redirect(url_for('Client'))
+    return redirect(url_for('home'))
   return render_template('new_patient.html')
 
 @app.route("/New_disease", methods=["GET", "POST"])

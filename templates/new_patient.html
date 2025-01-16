@@ -23,6 +23,9 @@ Patient page
     <label for="pnumber2">Phone number 2</label>
     <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2">
 
+    <label for="loc1">Specific Location</label>
+    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g">
+
     <label for="age1">Age</label>
     <input type="number" name="age" placeholder="Enter Age" id="age1">
  
@@ -42,8 +45,8 @@ Patient page
     <label for="fname">Full Name</label>
     <input type="text" name="fname" placeholder="Enter Full name" required id="fname" value="{{ client.full_name }}">
   
-    <label for="loc1">Location</label>
-    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g" value="{{ client.location }}">
+    <label for="loc1">Specific Location</label>
+    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g" value="{{ client.specific_location }}">
   
     <label for="pnumber1">Phone number 1</label>
     <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1" value="{{ client.phone_number_1 }}">

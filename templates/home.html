@@ -10,34 +10,37 @@ home page
 {% endblock %}
 
 {% block nav %}
+{% set active_assigned = False %}
+
 <div class="menu_dashboard">
   {% if current_user.staff_role.name == "Admin" %}
-  <div class="menu-item" onclick="openTab(event, 'dashboard')">
-  <h4 id="menu-heading">Dashboard</h4>
+  <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'dashboard')">
+    <h4 id="menu-heading">Dashboard</h4>
   </div>
   {% endif %}
   
   {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
-  <div class="menu-item active" onclick="openTab(event, 'clients')">
-  <h4 id="menu-heading">Clients</h4>
+  <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'clients')">
+    <h4 id="menu-heading">Clients</h4>
   </div>
   {% endif %}
 
   {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
-  <div class="menu-item" onclick="openTab(event, 'medicine')">
-  <h4 id="menu-heading">Medicine</h4>
+  <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'medicine')">
+    <h4 id="menu-heading">Medicine</h4>
   </div>
   {% endif %}
   
   {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-  <div class="menu-item" onclick="openTab(event, 'prescription')">
-  <h4 id="menu-heading">Prescription</h4>
-  </div>  
-  <div class="menu-item"onclick="openTab(event, 'Payment')">
-  <h4 id="menu-heading">Payment</h4>
+  <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'prescription')">
+    <h4 id="menu-heading">Prescription</h4>
+  </div>
+  <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'Payment')">
+    <h4 id="menu-heading">Payment</h4>
   </div>
   {% endif %}
 </div>
+
 {% endblock %}
 
 {% block body %}
@@ -48,7 +51,7 @@ home page
 </div>
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
-<div id="clients" class="tab-content active">
+<div id="clients" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
 <div class="tab-content-header">
    <div class="client-header">
      <h4 id="heading">Clients</h4>
@@ -64,6 +67,7 @@ home page
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Phone Number</th>
+                <th>Location</th>
                 <th>Specific location</th>
                 <th>Actions</th>
             </tr>
@@ -78,7 +82,20 @@ home page
                 <td>{{ client.age }}</td>
                 <td>{{ client.gender }}</td>
                 <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
-                <td>{{ client.specific_location }}</td>
+                <td>
+                  {% if client.location %}
+                  {{ client.client_location.region }}, {{ client.client_location.district }}
+                  {% else %}
+                  - - -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if client.specific_location %}
+                  {{ client.specific_location }}
+                  {% else %}
+                  - - -
+                  {% endif %}
+                </td>
                 <td id="action">
                     {% if current_user.staff_role.name == "Admin" %}
                     <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
@@ -93,7 +110,7 @@ home page
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
-<div id="medicine" class="tab-content">
+<div id="medicine" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
 <div class="tab-content-header">
     <div class="medicine-header">
       <h4>Medicine</h4>
@@ -115,8 +132,11 @@ home page
             <td>{{ medicine.name }}</td>
             <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
             <td id="action">
+              {% if current_user.staff_role.name == "Admin" %}
               <a href="{{ url_for('remove_medicine', medicine_id=medicine.id) }}">Remove</a>
-              <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a></td>
+              {% endif %}
+              <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a>
+              <a href="{{ url_for('medicine_stock',medicine_id=medicine.id) }}">Add stock</a></td>
           </tr>
          {% endfor %}
         </table>
@@ -126,7 +146,7 @@ home page
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-<div id="prescription" class="tab-content">
+<div id="prescription" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
 <div class="tab-content-header">
   <h4>Prescription</h4>
   <div class="prescription-box">
@@ -160,7 +180,7 @@ home page
 </div>
 </div>
 
-<div id="Payment" class="tab-content">
+<div id="Payment" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
  <div class="tab-content-header">
     <h4>Payment</h4>
     <div class="payment-box">

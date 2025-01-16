@@ -3,6 +3,7 @@
   height: 76vh;
   overflow-y: scroll;
   padding-right: 0.3rem;
+  
 }
 
 .medicine-header,.client-header{
@@ -11,6 +12,10 @@
   align-items: center;
 }
 
+#action{
+  display: flex;
+  gap: 2rem;
+}
 
 table {
   min-width: 100%;

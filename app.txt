@@ -14,7 +14,7 @@ Processess:
   ✅Calculate total cost for the client
   ✅Stock management 
   ✅Confirm payment and Sales
-  50%Roles and restrictions
+  ✅Roles and restrictions
   
   - Feedback 
 

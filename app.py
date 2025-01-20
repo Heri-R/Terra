@@ -281,21 +281,22 @@ def clients_detail(clients_id):
 @app.route("/edit-client/<int:client_id>", methods=["POST", "GET"])
 def edit_client(client_id):
   client = Clients.query.get(client_id)
+  location = ClientLocation.query.all()
   if not client:
     flash("Client not found", category="danger")
     return redirect(url_for("Client"))
   if request.method == "POST":
     client.full_name = request.form.get("fname")
-    client.location = request.form.get("loc1")
+    client.specific_location = request.form.get("loc1")
     client.phone_number_1 = request.form.get("phone1")
     client.phone_number_2 = request.form.get("phone2")
     client.age = request.form.get("age")
     client.gender = request.form.get("Gender")
     db.session.commit()
     flash("Client record updated successfully", category="success")
-    return redirect(url_for('Client'))
+    return redirect(url_for('clients_detail', clients_id=client.id))
   else:
-    return render_template("new_patient.html", client=client)
+    return render_template("new_patient.html", client=client, location=location)
 
 @app.route("/update-location/<int:patient_id>", methods=["POST"])
 def update_location(patient_id):
@@ -313,12 +314,9 @@ def update_location(patient_id):
   """
   client = Clients.query.get(patient_id)
   location_name = request.form.get("location")
-  specific_location = request.form.get("specific_location")
   client.location = location_name
-  client.specific_location = specific_location
-
   db.session.commit()
-  flash("Loaction saved succesfully", category="success")
+  flash("Location saved succesfully", category="success")
   return redirect(url_for('clients_detail',clients_id=client.id))
 
 @app.route("/diagnose-patient/<int:patient_id>", methods=["POST"])
@@ -349,12 +347,15 @@ def clients_delete(clients_id):
   
 @app.route("/New_patient", methods=["GET", "POST"])
 def New_patient():
+  location= ClientLocation.query.all()
   if request.method=="POST":
     full_name = request.form.get("fname")
     Phonenumber1 = request.form.get("phone1")
     Phonenumber2 = request.form.get("phone2")
     age = request.form.get("age")
     gender = request.form.get("Gender")
+    specific_location = request.form.get("loc1")
+
 
     Add_patient = Clients(
       full_name = full_name,
@@ -362,13 +363,14 @@ def New_patient():
       phone_number_2 = Phonenumber2,
       age = age,
       gender = gender,
+      specific_location = specific_location
     )
     db.session.add(Add_patient)
     db.session.commit()
     flash("Details added", category='success')
     
     return redirect(url_for('home'))
-  return render_template('new_patient.html')
+  return render_template('new_patient.html', location=location)
 
 @app.route("/New_disease", methods=["GET", "POST"])
 def New_disease():

@@ -169,9 +169,11 @@ home page
       <div class="total-box">
         <h4>{{ "Tsh {:,}".format(total|sum) }}</h4>
       </div>
+      <span class="payment-state">NOT PAID</span>
+
       <div class="payment">
         <a href="{{ url_for('medicine_payment', client_id=client_medicine.client_id) }}">
-          <button>PAID</button>
+          <button>PAY</button>
         </a>
       </div>
     </div>
@@ -184,7 +186,9 @@ home page
  <div class="tab-content-header">
     <h4>Payment</h4>
     <div class="payment-box">
+      {% set total_amount = [] %}
       {% for payment in payments %}
+      {{ total_amount.append(payment.amount) or "" }}
       <div class="payment">
         <h4>Amount: {{"Tsh {:,}".format(payment.amount)}}</h4>
         <p>Date Paid: {{ payment.date_paid.strftime("%d/%m/%Y at %I:%M %p") }}</p>
@@ -194,10 +198,12 @@ home page
           {{ client.full_name }}
           {% endfor %}
           {% endfor %}
-        <p class="payment-status"> PAID</p>
         </p>
+        <span class="payment-status">PAID</span>
       </div>
       {% endfor %}
+
+      <p>Total amount: {{ "Tsh {:,}".format(total_amount|sum) }}</p>
     </div>
  </div>
 </div>

@@ -84,13 +84,17 @@ th {
   cursor: pointer;
 }
 
-.payment-status p{
- color: var(--light-green);
-}
-
 .payment p, .payment h4 {
   color: var(--white);
 }
+
+.payment-status {
+ color: greenyellow;
+}
+
+.payment-state {
+  color: red;
+ }
 
 .menu_dashboard, button{
   cursor: pointer;

@@ -20,34 +20,16 @@ clients detail page
         <p> Gender: {{clients_details.gender}} </p>
         <p> Age: {{clients_details.age}} </p>
         {% if clients_details.location %}
-        {% for location in locations %}
-        {% if location.id == clients_details.location %}
+        {% for location in locations if location.id == clients_details.location %}
         <p>Location: {{location.region}}, {{ location.district }}</p>
-        {% endif %}
         {% endfor %}
-        <p>Specific Location: {{clients_details.specific_location}}</p>
         {% endif %}
+        <p>Specific Location: {{clients_details.specific_location}}</p>
         <p>Phone Number 1: {{clients_details.phone_number_1}}</p>
         {% if clients_details.phone_number_2 %}
         <p>Phone Number 2: {{clients_details.phone_number_2}}</p>
         {% endif %}
     </div>
-    
-        
-         <div class="client-location">
-            <h4>Client Location</h4>
-            
-            <form action="{{url_for('update_location',patient_id=clients_details.id)}}" method="post">
-                <select class="disease-search" name="location">
-                    {% for location in locations %}
-                    <option value="{{ location.id }}">{{ location.region }}, {{ location.district }} {{ location.specific_location }}</option>
-                    {% endfor %}
-                </select>
-                <input type="text" name="specific_location" placeholder="Enter Your Specific Location" required>
-                <button type="submit">Update</button>
-            </form>
-        </div>
-
 
     <div class="client-disease">
             <h4>Diagnose Patient</h4>

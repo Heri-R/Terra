@@ -13,27 +13,41 @@ Patient page
 {% if not client %}
 <div class="new-patient">
   <h1> Patients details</h1>
-  <form action="{{url_for('New_patient')}}"method="POST"> 
-    <label for="fname">Full Name</label>
-    <input type="text" name="fname" placeholder="Enter Full name" required id="fname">
-  
-    <label for="pnumber1">Phone number 1</label>
-    <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1">
-  
-    <label for="pnumber2">Phone number 2</label>
-    <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2">
+  <form action="{{url_for('New_patient')}}" method="POST">
 
-    <label for="loc1">Specific Location</label>
-    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g">
+    <div class="input">
+      <label for="fname">Full Name</label>
+      <input type="text" name="fname" placeholder="Enter Full name" required id="fname">
+    </div>
+  
+    <div class="input">
+      <label for="pnumber1">Phone number 1</label>
+      <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1">
+    </div>
+  
+    <div class="input">
+      <label for="pnumber2">Phone number 2</label>
+      <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2">
+    </div>
 
-    <label for="age1">Age</label>
-    <input type="number" name="age" placeholder="Enter Age" id="age1">
+    
+    <div class="input">
+      <label for="loc1">Specific Location</label>
+      <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g">
+    </div>
+
+    <div class="input">
+      <label for="age1">Age</label>
+      <input type="number" name="age" placeholder="Enter Age" id="age1">
+    </div>
  
-    <label for="gender2">Gender</label>
-    <select name="Gender" id="gender2">
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-    </select>
+    <div class="input">
+      <label for="gender2">Gender</label>
+      <select name="Gender" id="gender2">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
   
     <button>Submit</button>
   </form>
@@ -41,32 +55,49 @@ Patient page
 {% else %}
 <div class="edit-patient">
   <h1>Edit Patient Details</h1>
-  <form action="#"method="POST"> 
-    <label for="fname">Full Name</label>
-    <input type="text" name="fname" placeholder="Enter Full name" required id="fname" value="{{ client.full_name }}">
-  
-    <label for="loc1">Specific Location</label>
-    <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g" value="{{ client.specific_location }}">
-  
-    <label for="pnumber1">Phone number 1</label>
-    <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1" value="{{ client.phone_number_1 }}">
-  
-    <label for="pnumber2">Phone number 2</label>
-    <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2" value="{{ client.phone_number_2 }}">
-
-    <label for="age1">Age</label>
-    <input type="number" name="age" placeholder="Enter Age" id="age1" value="{{ client.age }}">
- 
-    <label for="gender2">Gender</label>
-    <select name="Gender" id="gender2">
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-    </select>
-
-
-
-    <button>Submit</button>
+  <form action="{{ url_for('edit_client',client_id=client.id) }}" method="POST">
+    <div class="input">
+      <label for="fname">Full Name</label>
+      <input type="text" name="fname" placeholder="Enter Full name" required id="fname" value="{{ client.full_name }}">
+    </div>
+    <div class="input">
+      <label for="pnumber1">Phone number 1</label>
+      <input type="tel" name="phone1" placeholder="Enter Phone number 1" required id="pnumber1" value="{{ client.phone_number_1 }}">
+    </div>
+    <div class="input">
+      <label for="pnumber2">Phone number 2</label>
+      <input type="tel" name="phone2" placeholder="Enter Phone number 1" id="pnumber2" value="{{ client.phone_number_2 }}">
+    </div>
+    <div class="input">
+      <label for="age1">Age</label>
+      <input type="number" name="age" placeholder="Enter Age" id="age1" value="{{ client.age }}">
+    </div>
+    <div class="input">
+      <label for="gender2">Gender</label>
+      <select name="Gender" id="gender2">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
+    <div class="input">
+      <label for="loc1">Specific Location</label>
+      <input type="text" name="loc1" placeholder="Enter Location"  id="loc1g" value="{{ client.specific_location }}">
+    </div>
+    <button type="submit">Update Profile</button>
   </form>
+
+  <form action="{{url_for('update_location', patient_id=client.id)}}" method="post">
+    <div class="input">
+      <label>Select Location</label>
+        <select class="disease-search" name="location">
+          {% for locations in location %}
+            <option value="{{ locations.id }}">{{ locations.region }}, {{ locations.district }}</option>
+          {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Update Location</button>
+  </form>
+  
 </div>
 {% endif %}
 {% endblock %}

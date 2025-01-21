@@ -1,0 +1,18 @@
+.new-patient, .edit-patient{
+  margin-top: 2rem;
+  padding: 1rem;
+  gap: 3rem;
+  border-radius: 0.8rem;
+  background-color: var(--dark-green);  
+  }
+
+
+  label{
+    color: var(--white);
+    
+  }
+
+  .new-patient input, .edit-patient input, .new-patient select {
+  margin-bottom: 1.5rem; /* Space between each input field */
+  padding: 0.3rem; /* Inner spacing inside input boxes */
+  }

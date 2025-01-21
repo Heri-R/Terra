@@ -163,7 +163,7 @@ home page
       {% endfor %}
       <div class="prescription-client">
         {% for client in clients if client.id == client_medicine.client_id %}
-        <p>{{ client.full_name }}</p>
+        <p><b>{{ client.full_name }}</b></p>
         {% endfor %}
       </div>
       <div class="total-box">

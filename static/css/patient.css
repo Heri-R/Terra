@@ -2,9 +2,29 @@
   margin-top: 2rem;
   padding: 1rem;
   gap: 3rem;
-  border-radius: 0.8rem;
-  background-color: var(--dark-green);  
   }
+
+  form{
+    margin-top: 1rem;
+    background-color: var(--dark-green);
+    padding: 1rem;
+    border-radius: 0.8rem;
+  }
+
+  h4{
+    color: var(--black);
+    font-size: 2rem;
+  }
+
+  .edit-patient h4{
+    color: var(--black);
+    font-size: 2rem;
+  }
+
+  .edit-patient select{
+    padding: 0.3rem;
+  }
+
 
 
   label{

@@ -48,6 +48,40 @@ home page
     <div class="tab-content-header">
       <h4>Dashboard</h4>
     </div>
+    <!-- 
+    Display information about the system
+    Use grid - columns => 4
+    1.Total patients
+    2.Total medication
+    3.Total prescriptions
+    4.Total transactions
+    5.Most prescribed medication
+    6.Most diagnozed disease
+    -->
+    <div class="statistics">
+
+      <div class="total-patients stats">
+        <p>Total Patients</p>
+        <h4>{{ clients|count }}</h4>
+      </div>
+
+      <div class="total-medication stats">
+        <p>Total medication</p>
+        <h4>{{ medicines|count }}</h4>
+      </div>
+
+      <div class="total-prescriptions stats">
+        <p>Total prescription</p>
+        <h4>{{ client_medicines|count }}</h4>
+      </div>
+
+      <div class="total-transactions stats">
+        <p>Total transactions</p>
+        <h4>{{ payments|count }}</h4>
+      </div>
+
+    </div>
+
 </div>
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
@@ -203,9 +237,10 @@ home page
       </div>
       {% endfor %}
 
-      <p>Total amount: {{ "Tsh {:,}".format(total_amount|sum) }}</p>
+      <p><b>Total amount: {{ "Tsh {:,}".format(total_amount|sum) }}</b></p>
     </div>
  </div>
 </div>
+
 {% endif %}
 {% endblock %}

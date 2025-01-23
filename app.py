@@ -90,6 +90,7 @@ def home():
   client_medicines = ClientMedicine.query.all()
   payments = ClientPayment.query.all()
 
+
   return render_template("home.html",clients=clients, medicines=medicines, client_medicines=client_medicines,payments=payments)
 
 @app.route("/Clients")

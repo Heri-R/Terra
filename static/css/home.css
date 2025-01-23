@@ -99,3 +99,20 @@ th {
 .menu_dashboard, button{
   cursor: pointer;
 }
+
+.statistics{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;  
+}
+
+.stats{
+  background-color: var(--dark-green);
+  padding: 1rem;
+  border-radius: var(--radius-s);
+}
+
+.stats p, .stats h4{
+  color: var(--white);
+}

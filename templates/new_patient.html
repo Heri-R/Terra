@@ -12,7 +12,7 @@ Patient page
 {% block body %}
 {% if not client %}
 <div class="new-patient">
-  <h1> Patients details</h1>
+  <h4> Patients details</h4>
   <form action="{{url_for('New_patient')}}" method="POST">
 
     <div class="input">
@@ -54,7 +54,7 @@ Patient page
 </div>
 {% else %}
 <div class="edit-patient">
-  <h1>Edit Patient Details</h1>
+  <h4>Edit Patient Details</h4>
   <form action="{{ url_for('edit_client',client_id=client.id) }}" method="POST">
     <div class="input">
       <label for="fname">Full Name</label>

@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-
 {% block head %}
 {{super()}}
 <link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {% endblock %}
 
 {% block title %} 
@@ -79,9 +80,21 @@ home page
         <p>Total transactions</p>
         <h4>{{ payments|count }}</h4>
       </div>
+      
+      <div class="most-diagnosed stats">
+        <h4>Most diagnosed disease</h4>
+        {%for disease in diseases if disease.id == most_diagnosed_disease %}
+        <p>Disease {{ disease.name }} diagnosed  <b>{{diagnosed_count}} times </b> </p>
+        {% endfor %}
+      </div>
 
+      <div class="most-prescribed stats">
+        <h4>Most Precribed Medication:</h4>
+        {% for medicine in medicines if medicine.id == most_prescribed_medicine %}
+        <p>Medicine {{ medicine.name }} prescribed <b>{{ prescribed_count }} times</b></p>
+        {% endfor %}
+      </div>
     </div>
-
 </div>
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}

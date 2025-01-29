@@ -113,6 +113,15 @@ th {
   border-radius: var(--radius-s);
 }
 
+.most-diagnosed {
+  grid-column: 1/3;
+}
+
+.most-prescribed {
+  color: var(--white);
+  grid-column: 3/5;
+}
+
 .stats p, .stats h4{
   color: var(--white);
 }

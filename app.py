@@ -5,6 +5,7 @@ from config import Config
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+from collections import Counter
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -89,9 +90,26 @@ def home():
   medicines = Medicine.query.all()
   client_medicines = ClientMedicine.query.all()
   payments = ClientPayment.query.all()
+  diseases = Diseases.query.all()
+
+  #Most diagnosed disease
+  diagnosed_data= ClientDisease.query.all()
+  diagnosed_disease_ids= []
+  for diagnosis in diagnosed_data:
+    diagnosed_disease_ids.append(diagnosis.disease_id)
+  diagnosis = Counter(diagnosed_disease_ids)
+  most_diagnosed_disease, diagnosed_count = diagnosis.most_common(1)[0]
 
 
-  return render_template("home.html",clients=clients, medicines=medicines, client_medicines=client_medicines,payments=payments)
+  #Most prescribed medication
+  prescription_data = Prescriptions.query.all()
+  prescribed_medicine_ids = []
+  for prescription in prescription_data:
+    prescribed_medicine_ids.append(prescription.medicine_id)
+  prescriptions = Counter(prescribed_medicine_ids)
+  most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
+  
+  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_disease=most_diagnosed_disease, diagnosed_count=diagnosed_count )
 
 @app.route("/Clients")
 def Client():

@@ -103,6 +103,7 @@ def home():
   diagnosis = Counter(diagnosed_disease_ids)
   most_diagnosed_disease, diagnosed_count = diagnosis.most_common(1)[0]
 
+  
 
   #Most prescribed medication
   prescription_data = Prescriptions.query.all()
@@ -113,45 +114,45 @@ def home():
   most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
   
   # Load Tanzania GeoJSON data
-  with open("tanzania.geojson", "r", encoding="utf-8") as f:
-    tanzania_geo = json.load(f)
+  # with open("tanzania.geojson", "r", encoding="utf-8") as f:
+  #   tanzania_geo = json.load(f)
 
-  # Sample Data: Unemployment rates for different regions
-  client_locations = ClientLocation.query.all()
-  all_regions = []
-  for client_location in client_locations:
-    if not client_location.region in all_regions:
-      all_regions.append(client_location.region)
-  print(all_regions)
-  data = {
-      "Region": all_regions,
-      "Unemployment": [8.5, 12.1, 7.8, 9.3, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2, 10.2]
-  }
-  state_data = pd.DataFrame(data)
+  # # Sample Data: Unemployment rates for different regions
+  # client_locations = ClientLocation.query.all()
+  # all_regions = []
+  # for client_location in client_locations:
+  #   if not client_location.region in all_regions:
+  #     all_regions.append(client_location.region)
+  # print(all_regions)
+  # data = {
+  #     "Region": all_regions,
+  #     "Disease": []
+  # }
+  # state_data = pd.DataFrame(data)
 
-  # Create a map centered on Tanzania
-  m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
+  # # Create a map centered on Tanzania
+  # m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
 
-  # Create a choropleth layer
-  folium.Choropleth(
-      geo_data=tanzania_geo,
-      name="choropleth",
-      data=state_data,
-      columns=["Region", "Unemployment"],
-      key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
-      fill_color="YlGn",
-      fill_opacity=0.7,
-      line_opacity=0.2,
-      legend_name="Unemployment Rate (%)",
-  ).add_to(m)
+  # # Create a choropleth layer
+  # folium.Choropleth(
+  #     geo_data=tanzania_geo,
+  #     name="choropleth",
+  #     data=state_data,
+  #     columns=["Region", "Disease"],
+  #     key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
+  #     fill_color="YlGn",
+  #     fill_opacity=0.7,
+  #     line_opacity=0.2,
+  #     legend_name="Most diagnosed disease (%)",
+  # ).add_to(m)
 
-  # Add layer control
-  folium.LayerControl().add_to(m)
+  # # Add layer control
+  # folium.LayerControl().add_to(m)
 
-  # Store map HTML in a variable
-  map_html = m.get_root().render()
-  with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
-    f.write(map_html)
+  # # Store map HTML in a variable
+  # map_html = m.get_root().render()
+  # with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
+  #   f.write(map_html)
  
   return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_disease=most_diagnosed_disease, diagnosed_count=diagnosed_count )
 

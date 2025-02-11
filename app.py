@@ -8,7 +8,11 @@ from datetime import datetime
 from collections import Counter
 import folium
 import pandas as pd
-import requests
+import requests, random
+from sqlalchemy.orm import joinedload
+from sqlalchemy.sql import func, cast, literal_column
+from sqlalchemy.types import String
+from itertools import chain
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -103,8 +107,6 @@ def home():
   diagnosis = Counter(diagnosed_disease_ids)
   most_diagnosed_disease, diagnosed_count = diagnosis.most_common(1)[0]
 
-  
-
   #Most prescribed medication
   prescription_data = Prescriptions.query.all()
   prescribed_medicine_ids = []
@@ -113,48 +115,71 @@ def home():
   prescriptions = Counter(prescribed_medicine_ids)
   most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
   
+  #Paste belowe here
+  result = (
+    db.session.query(
+        ClientLocation.region,
+        func.string_agg(cast(ClientDisease.disease_id, String(10)), literal_column("','")).label("disease_ids")
+    )
+    .join(Clients, Clients.location == ClientLocation.id)
+    .join(ClientDisease, ClientDisease.client_id == Clients.id)
+    .group_by(ClientLocation.region)
+    .all()
+  )
+  output = {row.region: [int(d) for d in row.disease_ids.split(",")] if row.disease_ids else [] for row in result}
+  regions_with_data = list(output.keys())
+  values_of_regions = []
+  values = list(output.values())
+  values_for_Arusha = values[0]
+  values.pop(0)
+  for value in values:
+    values_of_regions.append(value)
+  random_value = random.choice(values_for_Arusha)
+  complete_list = list(chain.from_iterable(values_of_regions))
+  complete_list.insert(0, random_value)
+
   # Load Tanzania GeoJSON data
-  # with open("tanzania.geojson", "r", encoding="utf-8") as f:
-  #   tanzania_geo = json.load(f)
+  with open("tanzania.geojson", "r", encoding="utf-8") as f:
+    tanzania_geo = json.load(f)
 
-  # # Sample Data: Unemployment rates for different regions
-  # client_locations = ClientLocation.query.all()
-  # all_regions = []
-  # for client_location in client_locations:
-  #   if not client_location.region in all_regions:
-  #     all_regions.append(client_location.region)
-  # print(all_regions)
-  # data = {
-  #     "Region": all_regions,
-  #     "Disease": []
-  # }
-  # state_data = pd.DataFrame(data)
+  # Sample Data: Unemployment rates for different regions
+  client_locations = ClientLocation.query.all()
+  all_regions = []
+  for client_location in client_locations:
+    if not client_location.region in all_regions:
+      all_regions.append(client_location.region)
+  print(all_regions)
+  data = {
+    "Region": regions_with_data,
+    "Disease": complete_list
+  }
+  state_data = pd.DataFrame(data)
 
-  # # Create a map centered on Tanzania
-  # m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
+  # Create a map centered on Tanzania
+  m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
 
-  # # Create a choropleth layer
-  # folium.Choropleth(
-  #     geo_data=tanzania_geo,
-  #     name="choropleth",
-  #     data=state_data,
-  #     columns=["Region", "Disease"],
-  #     key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
-  #     fill_color="YlGn",
-  #     fill_opacity=0.7,
-  #     line_opacity=0.2,
-  #     legend_name="Most diagnosed disease (%)",
-  # ).add_to(m)
+  # Create a choropleth layer
+  folium.Choropleth(
+    geo_data=tanzania_geo,
+    name="choropleth",
+    data=state_data,
+    columns=["Region", "Disease"],
+    key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
+    fill_color="YlGn",
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name="Most diagnosed disease (%)",
+  ).add_to(m)
 
-  # # Add layer control
-  # folium.LayerControl().add_to(m)
+  # Add layer control
+  folium.LayerControl().add_to(m)
 
-  # # Store map HTML in a variable
-  # map_html = m.get_root().render()
-  # with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
-  #   f.write(map_html)
+  # Store map HTML in a variable
+  map_html = m.get_root().render()
+  with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
+    f.write(map_html)
  
-  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_disease=most_diagnosed_disease, diagnosed_count=diagnosed_count )
+  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_disease=most_diagnosed_disease, diagnosed_count=diagnosed_count)
 
 @app.route("/map")
 def map():

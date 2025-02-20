@@ -142,7 +142,7 @@ def home():
   with open("tanzania.geojson", "r", encoding="utf-8") as f:
     tanzania_geo = json.load(f)
 
-  # Sample Data: Unemployment rates for different regions
+  # Sample Data: diagnosed disesase rates for different regions
   client_locations = ClientLocation.query.all()
   all_regions = []
   for client_location in client_locations:
@@ -170,6 +170,27 @@ def home():
     line_opacity=0.2,
     legend_name="Most diagnosed disease (%)",
   ).add_to(m)
+
+  for feature in tanzania_geo["features"]:
+    region_name = feature["properties"]["shapeName"]
+    feature["properties"]["DiseaseCount"] = len(output.get(region_name, []))
+
+  # Add a hover tooltip to display region name & disease count
+  folium.GeoJson(
+      tanzania_geo,
+      style_function=lambda feature: {
+          "fillColor": "transparent", 
+          "color": "transparent"
+      },
+      tooltip=folium.GeoJsonTooltip(
+          fields=["shapeName"],
+          aliases=["Region: 100"],
+          labels=True,
+          sticky=False
+      )
+      # Manually add disease count data to each region in GeoJSON
+
+    ).add_to(m)
 
   # Add layer control
   folium.LayerControl().add_to(m)

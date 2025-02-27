@@ -174,6 +174,12 @@ def home():
   for feature in tanzania_geo["features"]:
     region_name = feature["properties"]["shapeName"]
     feature["properties"]["DiseaseCount"] = len(output.get(region_name, []))
+    diagnosed_diseases = output.get(region_name, [])
+    most_diagnosed_disease = max(set(diagnosed_diseases), key=diagnosed_diseases.count) if diagnosed_diseases else 0
+    most_diagnosed_disease_name= [disease.name for disease in diseases if disease.id == most_diagnosed_disease]
+    feature["properties"]["MostDiagnosed"] = [most_diagnosed_disease_name[0]] if most_diagnosed_disease_name else ["none"]
+
+    feature["properties"]["DiseaseNames"] = [disease.name for disease in diseases for disease_id in output.get(region_name, []) if disease.id == disease_id]
 
   # Add a hover tooltip to display region name & disease count
   folium.GeoJson(
@@ -183,10 +189,12 @@ def home():
           "color": "transparent"
       },
       tooltip=folium.GeoJsonTooltip(
-          fields=["shapeName"],
-          aliases=["Region: 100"],
+          fields=["shapeName","DiseaseCount","DiseaseNames","MostDiagnosed"],
+          aliases=["Region:","Disease count:","Disease name:","Most diagnosed:"],
           labels=True,
           sticky=False
+          
+
       )
       # Manually add disease count data to each region in GeoJSON
 

@@ -20,5 +20,6 @@ Processess:
 
 
 Prerequisites:
-  - Generate reports and charts
-  - Interactive and simple GUI
+  - Generate reports and 
+  ✅charts
+  ✅Interactive and simple GUI

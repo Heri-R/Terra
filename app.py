@@ -105,7 +105,7 @@ def home():
   for diagnosis in diagnosed_data:
     diagnosed_disease_ids.append(diagnosis.disease_id)
   diagnosis = Counter(diagnosed_disease_ids)
-  most_diagnosed_disease, diagnosed_count = diagnosis.most_common(1)[0]
+  most_diagnosed_diseases, diagnosed_count = diagnosis.most_common(1)[0]
 
   #Most prescribed medication
   prescription_data = Prescriptions.query.all()
@@ -148,7 +148,6 @@ def home():
   for client_location in client_locations:
     if not client_location.region in all_regions:
       all_regions.append(client_location.region)
-  print(all_regions)
   data = {
     "Region": regions_with_data,
     "Disease": complete_list
@@ -159,25 +158,45 @@ def home():
   m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
 
   # Create a choropleth layer
-  folium.Choropleth(
-    geo_data=tanzania_geo,
-    name="choropleth",
-    data=state_data,
-    columns=["Region", "Disease"],
-    key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
-    fill_color="YlGn",
-    fill_opacity=0.7,
-    line_opacity=0.2,
-    legend_name="Most diagnosed disease (%)",
-  ).add_to(m)
+  # folium.Choropleth(
+  #   geo_data=tanzania_geo,
+  #   name="choropleth",
+  #   data=state_data,
+  #   columns=["Region", "Disease"],
+  #   key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
+  #   fill_color="YlGn",
+  #   fill_opacity=0.7,
+  #   line_opacity=0.2,
+  #   legend_name="Most diagnosed disease (%)",
+  # ).add_to(m)
+
+  folium.GeoJson(
+        tanzania_geo,
+        name="Region Borders",
+        style_function=lambda feature: {
+            "fillColor": "yellow",  # Keep regions yellow
+            "color": "black",  # Border color
+            "weight": 2,  # Border thickness
+        },
+        tooltip=folium.GeoJsonTooltip(
+            fields=["shapeName"],  # Adjust based on your GeoJSON properties
+            aliases=["Region:"],
+            sticky=True
+        )
+    ).add_to(m)
+
 
   for feature in tanzania_geo["features"]:
     region_name = feature["properties"]["shapeName"]
     feature["properties"]["DiseaseCount"] = len(output.get(region_name, []))
     diagnosed_diseases = output.get(region_name, [])
-    most_diagnosed_disease = max(set(diagnosed_diseases), key=diagnosed_diseases.count) if diagnosed_diseases else 0
-    most_diagnosed_disease_name= [disease.name for disease in diseases if disease.id == most_diagnosed_disease]
-    feature["properties"]["MostDiagnosed"] = [most_diagnosed_disease_name[0]] if most_diagnosed_disease_name else ["none"]
+    most_diagnosed_disease = Counter(diagnosed_diseases).most_common(1)
+    if most_diagnosed_disease:
+      x,y = most_diagnosed_disease[0]
+      most_diagnosed_disease_name= [disease.name for disease in diseases if disease.id == x]
+      feature["properties"]["MostDiagnosed"] = [most_diagnosed_disease_name[0]] if most_diagnosed_disease_name else ["none"]
+    else:
+      feature["properties"]["MostDiagnosed"] = ["none"]
 
     feature["properties"]["DiseaseNames"] = [disease.name for disease in diseases for disease_id in output.get(region_name, []) if disease.id == disease_id]
 
@@ -208,7 +227,7 @@ def home():
   with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
     f.write(map_html)
  
-  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_disease=most_diagnosed_disease, diagnosed_count=diagnosed_count)
+  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
 
 @app.route("/map")
 def map():

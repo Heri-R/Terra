@@ -306,9 +306,13 @@ def edit_medicine(medicine_id):
     return redirect(url_for("Medicine"))
   if request.method == "POST":
     medicine.name = request.form.get("Mname")
+    medicine.price = request.form.get("Mprice")
     db.session.commit()
+    
     flash("Medicine record updated successfully", category="success")
-    return redirect(url_for('Medicines'))
+
+
+    return redirect(url_for('home'))
   else:
     return render_template("new_medicine.html", medicine=medicine)
 

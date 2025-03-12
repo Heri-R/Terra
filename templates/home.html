@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block head %}
 {{super()}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -113,12 +114,16 @@ home page
 <div class="tab-content-header">
    <div class="client-header">
      <h4 id="heading">Clients</h4>
+     <div class="client_input">
+       <input type="text" id="Csearch" placeholder="Find Client">
+       <i class="fa fa-search"></i>
+     </div>
      <a href="{{url_for('New_patient')}}">
        <button>Add Patient</button>
      </a>
    </div> 
     <div class="client-details">
-        <table>
+        <table id="client_table">
             <tr id="th">
                 <th>ID</th>
                 <th>Full Name</th>
@@ -130,7 +135,7 @@ home page
                 <th>Actions</th>
             </tr>
             {% for client in clients %}
-            <tr>
+            <tr id="client_name">
                 <td>{{ client.id }}</td>
                 <td>
                     <a href="{{url_for('clients_detail',clients_id=client.id)}}">
@@ -172,12 +177,16 @@ home page
 <div class="tab-content-header">
     <div class="medicine-header">
       <h4>Medicine</h4>
+      <div class="medicine_input">
+        <input type="text" id="Msearch" placeholder="Find medicine">
+         <i class="fa fa-search"></i>
+      </div>
       <a href ="{{url_for('New_medicine')}}">
         <button id="add_button">Add Medicine</button>
       </a>
     </div>
     <div class="medicine">
-        <table>
+        <table id="medicine_table">
             <tr id="th">
               <th>ID</th>
               <th>Name</th>
@@ -185,7 +194,7 @@ home page
               <th>Action</th>
             </tr>
          {% for medicine in medicines %}
-          <tr>
+          <tr id="medicine_name">
             <td>{{ medicine.id }}</td>
             <td>{{ medicine.name }}</td>
             <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
@@ -267,4 +276,5 @@ home page
 </div>
 
 {% endif %}
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 {% endblock %}

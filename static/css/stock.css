@@ -1,0 +1,18 @@
+ .medicine_stock_header{
+    color: var(--white);
+    padding: 1rem;
+}
+
+
+.medicine_stock {
+    padding: 1rem;
+    border-radius: 0.8rem;
+    background-color: var(--dark-green);
+    border: 2px;
+    color: var(--white);
+    flex-grow: 1;
+}
+
+label{
+    color: var(--white);
+}

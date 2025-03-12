@@ -15,11 +15,12 @@ Processess:
   ✅Stock management 
   ✅Confirm payment and Sales
   ✅Roles and restrictions
-  
   - Feedback 
 
 
 Prerequisites:
-  - Generate reports and 
+  ✅Generate reports and 
   ✅charts
   ✅Interactive and simple GUI
+
+95% COMPLETE

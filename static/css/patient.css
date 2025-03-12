@@ -9,6 +9,12 @@
     background-color: var(--dark-green);
     padding: 1rem;
     border-radius: 0.8rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  form button{
+  max-width: max-content ;
   }
 
   h4{
@@ -21,18 +27,13 @@
     font-size: 2rem;
   }
 
-  .edit-patient select{
+  /* .edit-patient select{
     padding: 0.3rem;
-  }
+  } */
 
 
 
   label{
     color: var(--white);
     
-  }
-
-  .new-patient input, .edit-patient input, .new-patient select {
-  margin-bottom: 1.5rem; /* Space between each input field */
-  padding: 0.3rem; /* Inner spacing inside input boxes */
   }

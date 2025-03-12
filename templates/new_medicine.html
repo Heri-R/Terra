@@ -24,10 +24,13 @@ Patient page
 </div>
 {% else %}
 <div class="edit_medicine">
-  <h1>Edit Medicine</h1>
+  <h1 class="edit_medicine_header">Edit Medicine</h1>
   <form action="#"method="POST">
     <label for="Mname">Medicine name</label>
-        <input type="text" name="Mname" placeholder="Enter Disease name" required id="Mname" value="{{ medicine.name }}"> 
+        <input type="text" name="Mname"  required id="Mname" value="{{ medicine.name }}"> 
+    <label for="Mname">Medicine price</label>
+        <input type="number" name="Mprice"  required id="Mprice" value="{{ medicine.price }}"> 
+    
    <button>Submit</button>
   </form>
 </div>

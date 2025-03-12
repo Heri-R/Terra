@@ -1,10 +1,10 @@
-.new_medicine_header{
+.new_medicine_header, .edit_medicine_header{
     color: var(--white);
     padding: 1rem;
 }
 
 
-.new_medicine {
+.new_medicine, .edit_medicine {
     padding: 1rem;
     border-radius: 0.8rem;
     background-color: var(--dark-green);

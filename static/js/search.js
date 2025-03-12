@@ -1,22 +1,17 @@
-const searchInput = document.querySelector('.search');
-const selectOptions = document.querySelector('.disease-search');
-const options = selectOptions.options;
-
-searchInput.addEventListener('keydown', function() {
-  const searchTerm = this.value.toLowerCase();
-  for (let i = 0; i < options.length; i++) {
-    const option = options[i];
-    if (option.text.toLowerCase().includes(searchTerm)) {
-      option.style.display = 'block';
-    } else {
-      option.style.display = 'none';
-    }
-  }
-  selectOptions.style.display = 'block';
+$(document).ready(function () {
+  $("#Csearch").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $("#client_table #client_name").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
 });
 
-document.addEventListener('click', function(event) {
-  if (!event.target.closest('.custom-select')) {
-    selectOptions.style.display = 'none';
-  }
+$(document).ready(function () {
+  $("#Msearch").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $("#medicine_table #medicine_name").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
 });

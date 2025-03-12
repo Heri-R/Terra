@@ -43,6 +43,22 @@ th {
   text-align: left;
 }
 
+
+#Csearch::placeholder,#Msearch::placeholder{
+  color:  var(--black);
+}
+
+.client_input, .medicine_input{
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+  background-color: rgb(221, 221, 221);
+}
+
+#Csearch, #Msearch{
+  background-color: transparent;
+}
+
 .prescription-box{
   margin-top: 1rem;
   display: flex;

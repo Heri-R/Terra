@@ -30,6 +30,15 @@ class Clients(db.Model):
   client_medicine = db.relationship("ClientMedicine", backref="medicine_client", lazy=True)
   location = db.Column(db.Integer(), db.ForeignKey("client_location.id"))
   specific_location = db.Column(db.String(30))
+  client_feedback = db.relationship("ClientFeedback", backref="feed_back", lazy=True)
+
+class ClientFeedback(db.Model):
+  __tablename__ = "Client_Feedback"
+  id = db.Column(db.Integer(), primary_key=True)
+  status = db.Column(db.String(18))
+  clients_id = db.Column(db.Integer(), db.ForeignKey("client_records.id"))
+  
+
   
 class ClientLocation(db.Model):
   id = db.Column(db.Integer(), primary_key=True)

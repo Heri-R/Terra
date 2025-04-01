@@ -1,5 +1,5 @@
 from flask import Flask,flash,request,redirect,url_for,render_template, json
-from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, Prescriptions, StaffRoles
+from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, ClientFeedback, Prescriptions, StaffRoles
 from flask_migrate import Migrate
 from config import Config
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
@@ -476,6 +476,20 @@ def diagnose_patient(patient_id):
   db.session.commit()
   flash("Patient diaginosed successfully", category="success")
   return redirect(url_for('clients_detail', clients_id=patient.id))
+
+@app.route("/Client_feedback/<int:client_id>", methods=["POST"])
+def client_feedback(client_id):
+  client = Clients.query.get(client_id)
+  feedback = ClientFeedback(
+    clients_id = client_id,
+    status = request.form.get("feedback")
+  )
+  db.session.add(feedback) 
+  db.session.commit()
+
+  flash('feedback added', category="success")
+
+  return redirect(url_for('clients_detail',clients_id = client.id))
 
 @app.route("/Client_delete/<int:clients_id>")
 def clients_delete(clients_id):

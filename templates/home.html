@@ -252,14 +252,18 @@ home page
 <div id="Payment" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
  <div class="tab-content-header">
     <h4>Payment</h4>
+    <div class="client_input">
+      <input type="text" id="Psearch" placeholder="Find payment">
+      <i class="fa fa-search"></i>
+    </div>
     <div class="payment-box">
       {% set total_amount = [] %}
       {% for payment in payments %}
       {{ total_amount.append(payment.amount) or "" }}
-      <div class="payment">
+      <div id="payment_info" class="payment">
         <h4>Amount: {{"Tsh {:,}".format(payment.amount)}}</h4>
         <p>Date Paid: {{ payment.date_paid.strftime("%d/%m/%Y at %I:%M %p") }}</p>
-        <p>Client: 
+        <p id="client_pname">Client: 
           {% for client_medicine in client_medicines if client_medicine.client_payment_id == payment.id %}
           {% for client in clients if client.id == client_medicine.client_id %}
           {{ client.full_name }}

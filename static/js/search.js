@@ -15,3 +15,12 @@ $(document).ready(function () {
     });
   });
 });
+
+$(document).ready(function () {
+  $("#Psearch").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $("#payment_info #client_pname").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
+});

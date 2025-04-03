@@ -3,10 +3,14 @@
 }
 
 .container-box {
+  width: 100%;
+  max-width: 500px;
   padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto;
+  height: 100vh; /* Centers vertically */
 }
 
 .form-box {
@@ -14,12 +18,12 @@
   display: grid;
   gap: 1.5rem;
   border-radius: 0.8rem;
-  background-color: var(--dark-green);  
+  background-color: var(--dark-green);
 }
 
 h1 {
-  color: var(--white)
-} 
+  color: var(--white);
+}
 
 label, .info p {
   color: var(--dark-grey);
@@ -42,9 +46,48 @@ form {
 
 form button {
   margin-top: 1.2rem;
-} 
+}
 
 .input {
   display: grid;
   gap: 0.6rem;
+}
+
+/* Responsive Adjustments for Larger Screens */
+@media (max-width: 768px) {
+  .form-box {
+    padding: 1.5rem;
+  }
+
+  form {
+    grid-template-columns: 1fr; /* Stack inputs for smaller screens */
+  }
+
+  .extend, form button {
+    grid-column: auto;
+  }
+}
+
+/* Responsive Adjustments for Smaller Screens */
+@media (max-width: 600px) {
+  .form-box {
+    padding: 1rem; /* Reduce padding further for smaller screens */
+  }
+
+  form {
+    grid-template-columns: 1fr; /* Stack all inputs */
+  }
+
+  .container-box {
+    max-width: 100%; /* Make sure the container stretches */
+    padding: 0.5rem; /* Allow for smaller screen space */
+  }
+
+  .extend, form button {
+    grid-column: auto; /* Adjust layout */
+  }
+
+  .info p {
+    font-size: 0.9rem; /* Adjust text size for readability */
+  }
 }

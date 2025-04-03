@@ -29,6 +29,11 @@ clients detail page
         {% if clients_details.phone_number_2 %}
         <p>Phone Number 2: {{clients_details.phone_number_2}}</p>
         {% endif %}
+        <p>Status:
+            {% for feedback in clients_details.client_feedback %}
+            {{ feedback.status }}
+            {% endfor %}
+        </p>
 
         {% if client_diseases and client_medicines %}
         <form action =" {{url_for('client_feedback',client_id = clients_details.id )}}" method="post">

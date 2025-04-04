@@ -190,6 +190,7 @@ home page
             <tr id="th">
               <th>ID</th>
               <th>Name</th>
+              <th>Quantity</th>
               <th>Price</th>
               <th>Action</th>
             </tr>
@@ -197,6 +198,7 @@ home page
           <tr id="medicine_name">
             <td>{{ medicine.id }}</td>
             <td>{{ medicine.name }}</td>
+            <td>{{ medicine.quantity }}</td>
             <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
             <td id="action">
               {% if current_user.staff_role.name == "Admin" %}
@@ -252,7 +254,7 @@ home page
 <div id="Payment" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
  <div class="tab-content-header">
     <h4>Payment</h4>
-    <div class="client_input">
+    <div class="payment_input">
       <input type="text" id="Psearch" placeholder="Find payment">
       <i class="fa fa-search"></i>
     </div>

@@ -44,18 +44,18 @@ th {
 }
 
 
-#Csearch::placeholder,#Msearch::placeholder{
+#Csearch::placeholder,#Msearch::placeholder,#Psearch::placeholder{
   color:  var(--black);
 }
 
-.client_input, .medicine_input{
+.client_input, .medicine_input, .payment_input{
   display: flex;
   align-items: center;
   padding-right: 0.5rem;
   background-color: rgb(221, 221, 221);
 }
 
-#Csearch, #Msearch{
+#Csearch, #Msearch, #Psearch{
   background-color: transparent;
 }
 

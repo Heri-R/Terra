@@ -15,3 +15,8 @@ function openTab(event, tabName) {
   document.getElementById(tabName).classList.add("active");
   event.currentTarget.classList.add("active");
 }
+
+function toggleMenu() {
+  const menu = document.getElementById("mobile-menu");
+  menu.classList.toggle("show");
+}

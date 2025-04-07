@@ -18,7 +18,7 @@
        <a href="{{ url_for('home') }}">
          <img src="{{ url_for('static', filename='image/logo.jpg') }}" alt="Terra Natural Herbs Logo" class="header-logo">
        </a>
-       <h1> TERRA NATURAL HERBS</h1>
+       <h1 id="terra_heading"> TERRA NATURAL HERBS</h1>
      </div>
 
       {% if current_user.is_authenticated %}
@@ -27,9 +27,12 @@
         <p><a href="{{url_for('Logout')}}">LOGOUT</a></p>
       </div>
       {% else %}
-      <div class="link1">
-        <a href="{{url_for('register')}}">Sign up<a>
-        <a href="{{url_for('Login')}}">Sign in</a>
+      <div class="hamburger-container">
+        <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+        <div class="link1" id="mobile-menu">
+          <a href="{{url_for('register')}}">Sign up</a>
+          <a href="{{url_for('Login')}}">Sign in</a>
+        </div>
       </div>
       {% endif %}
     </header>

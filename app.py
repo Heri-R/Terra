@@ -2,7 +2,7 @@ from flask import Flask,flash,request,redirect,url_for,render_template, json
 from models import db, Staff, Clients, Diseases, Medicine, ClientDisease, ClientMedicine, ClientLocation, ClientPayment, ClientFeedback, Prescriptions, StaffRoles
 from flask_migrate import Migrate
 from config import Config
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user, login_manager, fresh_login_required
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from collections import Counter
@@ -22,6 +22,11 @@ login_manager=LoginManager()
 login_manager.login_view="/Login"
 login_manager.login_message="Please Login or Sign Up to access this page"
 login_manager.login_message_category="danger"
+login_manager.refresh_view = "/Login"
+login_manager.needs_refresh_message = (
+    "Your account has been inactive for a long time please login."
+)
+login_manager.needs_refresh_message_category = "info"
 login_manager.init_app(app)
 bcrypt = Bcrypt()
 
@@ -92,6 +97,8 @@ def Logout():
 
 @app.route("/")
 @app.route("/home")
+@login_required
+@fresh_login_required
 def home():
   clients = Clients.query.all()
   medicines = Medicine.query.all()

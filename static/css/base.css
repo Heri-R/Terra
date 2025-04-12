@@ -80,7 +80,7 @@ input, select {
 }
 
 header {
-  background-color: var(--dark-green);
+  background: linear-gradient(90deg, var(--dark-green), #2b6652, #1f554e);
   display: flex;
   justify-content: space-between;
   align-items: center;

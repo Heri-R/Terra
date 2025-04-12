@@ -24,3 +24,12 @@ $(document).ready(function () {
     });
   });
 });
+
+$(document).ready(function () {
+  $("#Prescription_search").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $(".prescription-box #prescription").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
+});

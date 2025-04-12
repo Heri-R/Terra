@@ -37,3 +37,140 @@
     color: var(--white);
     
   }
+
+  /* === Responsive Design for .new-patient and .edit-patient form === */
+
+/* 800px and below */
+@media screen and (max-width: 800px) {
+  form {
+    gap: 0.8rem;
+  }
+
+  h4, .edit-patient h4 {
+    font-size: 1.8rem;
+  }
+
+  form input,
+  form select {
+    font-size: 1rem;
+  }
+}
+
+/* 700px and below */
+@media screen and (max-width: 700px) {
+  form {
+    padding: 0.8rem;
+  }
+
+  form input,
+  form select {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  form button {
+    width: 100%;
+  }
+}
+
+/* 600px and below */
+@media screen and (max-width: 600px) {
+  .new-patient,
+  .edit-patient {
+    padding: 0.5rem;
+    gap: 2rem;
+  }
+
+  h4, .edit-patient h4 {
+    font-size: 1.5rem;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  form input,
+  form select {
+    padding: 0.6rem;
+  }
+}
+
+/* 500px and below */
+@media screen and (max-width: 500px) {
+  form {
+    padding: 0.5rem;
+    gap: 0.6rem;
+  }
+
+  label {
+    font-size: 0.9rem;
+  }
+
+  form input,
+  form select {
+    font-size: 0.9rem;
+  }
+
+  form button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* === 400px and below (Revised for improved spacing) === */
+@media screen and (max-width: 400px) {
+  .new-patient, .edit-patient {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    gap: 2rem; /* slightly reduced gap for coherence */
+  }
+
+  h4, .edit-patient h4 {
+    font-size: 1.4rem; /* moderate font size for headings */
+  }
+
+  form {
+    padding: 0.8rem;
+    gap: 0.8rem;
+  }
+
+  form input,
+  form select {
+    font-size: 0.9rem;
+    padding: 0.7rem; /* increased padding for comfortable tap targets */
+  }
+
+  form button {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* === 300px and below (Further adjustments) === */
+@media screen and (max-width: 300px) {
+  .new-patient, .edit-patient {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    gap: 1.5rem;
+  }
+
+  h4, .edit-patient h4 {
+    font-size: 1.2rem;
+  }
+
+  form {
+    padding: 0.6rem;
+    gap: 0.6rem;
+  }
+
+  form input,
+  form select {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+
+  form button {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+}

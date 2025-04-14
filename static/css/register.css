@@ -3,18 +3,15 @@
 }
 
 .container-box {
-  width: 100%;
-  max-width: 500px;
   padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
   height: 100vh; /* Centers vertically */
 }
 
 .form-box {
-  margin-top: 4rem;
+  min-width: 40%;
   padding: 2rem;
   display: grid;
   gap: 1.5rem;
@@ -25,6 +22,7 @@
 h1 {
   color: var(--white);
 }
+
 
 label, .info p {
   color: var(--dark-grey);
@@ -54,93 +52,41 @@ form button {
   gap: 0.6rem;
 }
 
+@media (max-width: 1200px) {
+  .form-box {
+    min-width: 60%;
+  }
+}
+
+@media (max-width: 800px) {
+  .form-box {
+    min-width: 80%;
+  }
+}
+
 /* For screens 600px and below */
 @media (max-width: 600px) {
   .form-box {
-    padding: 0.8rem;
-  }
-
-  .input input,
-  .input select {
-    font-size: 0.9rem;
-  }
-
-  .info p {
-    font-size: 0.85rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
+    min-width: 100%;
   }
 }
 
 /* For screens 500px and below */
 @media (max-width: 500px) {
-  .form-box {
-    padding: 0.6rem;
-    border-radius: 0.6rem;
+
+  form{
+    grid-template-columns: 1fr
   }
 
-  form {
-    gap: 0.8rem;
-  }
+  form button, .extend{
+    grid-column: 1/2;
 
-  button {
-    padding: 0.5em 0.8em;
-    font-size: 0.95rem;
-  }
-
-  h1 {
-    font-size: 1.4rem;
-  }
-
-  .info p {
-    font-size: 0.8rem;
-  }
-}
-
-/* For screens 400px and below */
-@media (max-width: 400px) {
-  .form-box {
-    margin-top: 3rem;
-  }
-
-  h1 {
-    font-size: 1.3rem;
-  }
-
-  .info p {
-    font-size: 0.75rem;
-  }
-
-  .input input,
-  .input select {
-    font-size: 0.85rem;
   }
 }
 
 /* For ultra-small screens 300px and below */
-@media (max-width: 300px) {
-  .form-box {
-    padding: 0.4rem;
-    margin-top: 2rem;
-  }
-
-  h1 {
-    font-size: 1.1rem;
-  }
-
-  .info p {
-    font-size: 0.7rem;
-  }
-
-  button {
-    padding: 0.4em 0.6em;
-    font-size: 0.85rem;
-  }
-
-  .input input,
-  .input select {
-    font-size: 0.8rem;
-  }
+@media (max-width: 400px) {
+   .container-box{
+    padding: 0;
+   }
 }

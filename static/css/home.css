@@ -44,11 +44,11 @@ th {
 }
 
 
-#Csearch::placeholder,#Msearch::placeholder,#Psearch::placeholder{
+#Csearch::placeholder,#Msearch::placeholder,#Psearch::placeholder,#Prescription_search::placeholder{
   color:  var(--black);
 }
 
-.client_input, .medicine_input, .payment_input{
+.client_input, .medicine_input, .payment_input, .prescription_input{
   display: flex;
   align-items: center;
   padding-right: 0.5rem;
@@ -56,7 +56,7 @@ th {
   max-width: 200px; /* You can adjust this value to fit your design */
 }
 
-#Csearch, #Msearch, #Psearch{
+#Csearch, #Msearch, #Psearch, #Prescription_search{
   background-color: transparent;
 }
 
@@ -69,12 +69,12 @@ th {
 }
 
 .prescription-details {
-  flex-grow: 1;
+  flex-grow: 0.2;
   background-color: var(--dark-green);
   padding: 1rem;
   border-radius: var(--radius-s);
   cursor: pointer;
-  width: 300px; /* Set a fixed width for both boxes */
+  width: 150; /* Set a fixed width for both boxes */
   height: 160px; /* Set a fixed height for both boxes */
   overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
   display: flex;

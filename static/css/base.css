@@ -30,6 +30,16 @@ h1{
   font-family: var(--font);
 }
 
+.hamburger{
+  cursor: pointer;
+  display: none;
+}
+
+.hamburger p{
+  color: var(--yellow);
+  font-size: 1.7rem;
+}
+
 p, a, span, input, label, td, th{
   font-family: var(--font);
   font-weight: 400;
@@ -85,6 +95,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  width: 100%;
   max-height: max-content;
 }
 
@@ -220,60 +231,27 @@ header {
 
   @media screen and (max-width: 600px) {
     .link1, .link2{
-      gap: 0.5rem
+      display: none;
+      
+    }
 
+    .hamburger{
+      display: block;
     }
   }
 
   /* === Hamburger Menu Styles (only under 500px) === */
-.hamburger-container {
-  position: relative;
-}
-
-.hamburger {
-  display: none;
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  color: var(--yellow);
-  cursor: pointer;
-}
-
 /* Below 500px – collapse link1 into hamburger */
 @media screen and (max-width: 500px) {
-  .link1 {
+  .link1, #terra_heading{
     display: none;
-    position: absolute;
-    top: 3.5rem;
-    right: 1rem;
-    background-color: var(--dark-green);
-    flex-direction: column;
-    padding: 1rem;
-    border-radius: var(--radius-s);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
   }
-
+  
   .header-logo{
-    width: 20px;
-    height: 1.5rem;
-  }
-
-  .link1 a {
-    color: var(--white);
-    padding: 0.5rem 0;
-    color: var(--yellow);
-  }
-
-  .hamburger {
-    display: block;
-    box-sizing: inherit;
-  }
-
-  .link1.show {
-    display: flex;
+    height: 3rem;
   }
 }
+
 
 /* === 400px and below === */
 @media screen and (max-width: 400px) {
@@ -297,9 +275,6 @@ header {
     padding: 0.4rem 0;
   }
 
-  .hamburger {
-    font-size: 1.6rem;
-  }
 }
 
 /* === 300px and below === */
@@ -322,10 +297,6 @@ header {
   .link1 a {
     font-size: 0.75rem;
     padding: 0.3rem 0;
-  }
-
-  .hamburger {
-    font-size: 1.4rem;
   }
 
   /* Optional: hide heading if space is tight */

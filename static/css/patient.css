@@ -4,25 +4,33 @@
   gap: 3rem;
   }
 
+  .side-nav-menu{
+    display: none;
+  }
+
   form{
     margin-top: 1rem;
     background-color: var(--dark-green);
     padding: 1rem;
     border-radius: 0.8rem;
     display: grid;
+    width: 100%;
     gap: 1rem;
+    justify-self: center;
   }
 
   form button{
   max-width: max-content ;
   }
 
-  h4{
-    color: var(--black);
-    font-size: 2rem;
+  .edit_patient_form, .add_patient_form{
+    width: 50%;
+    margin-inline: auto;
   }
 
-  .edit-patient h4{
+
+
+  h4{
     color: var(--black);
     font-size: 2rem;
   }
@@ -46,6 +54,10 @@
     gap: 0.8rem;
   }
 
+  .edit_patient_form, .add_patient_form{
+    width: 60%;
+  }
+
   h4, .edit-patient h4 {
     font-size: 1.8rem;
   }
@@ -60,6 +72,10 @@
 @media screen and (max-width: 700px) {
   form {
     padding: 0.8rem;
+  }
+
+  .edit_patient_form, .add_patient_form{
+    width: 70%;
   }
 
   form input,
@@ -84,27 +100,47 @@
   h4, .edit-patient h4 {
     font-size: 1.5rem;
   }
+  .content-area{
+    padding: 0;
+  }
+
 
   form {
     grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .edit_patient_form, .add_patient_form{
+    width: 70%;
   }
 
   form input,
   form select {
     padding: 0.6rem;
   }
+
+ 
 }
 
 /* 500px and below */
 @media screen and (max-width: 500px) {
   form {
-    padding: 0.5rem;
+    padding: 1rem;
     gap: 0.6rem;
+  }
+
+  .edit_patient_form, .add_patient_form{
+    width: 80%;
   }
 
   label {
     font-size: 0.9rem;
   }
+
+  .content-area{
+    padding: 0;
+  }
+
 
   form input,
   form select {
@@ -130,9 +166,19 @@
   }
 
   form {
-    padding: 0.8rem;
+    padding: 1rem;
     gap: 0.8rem;
   }
+
+  .edit_patient_form, .add_patient_form{
+    width: 90%;
+  }
+
+  .content-area{
+    padding: 0;
+  }
+
+
 
   form input,
   form select {
@@ -150,7 +196,7 @@
 @media screen and (max-width: 300px) {
   .new-patient, .edit-patient {
     margin-top: 1rem;
-    padding: 0.8rem;
+    padding: 0;
     gap: 1.5rem;
   }
 
@@ -158,10 +204,20 @@
     font-size: 1.2rem;
   }
 
+
   form {
-    padding: 0.6rem;
+    padding: 1rem;
     gap: 0.6rem;
   }
+
+  .edit_patient_form, .add_patient_form{
+    width: 100%;
+  }
+
+  .content-area{
+    padding: 1rem;
+  }
+
 
   form input,
   form select {

@@ -3,7 +3,20 @@
     padding: 1rem;
 }
 
+.side-nav-menu{
+    display: none;
+  }
 
+
+  form{
+    margin-top: 2rem;
+    background-color: var(--dark-green);
+    padding: 1rem;
+    border-radius: 0.8rem;
+    width: 100%;
+    gap: 1rem;
+  }
+  
 .new_medicine, .edit_medicine {
     padding: 1rem;
     border-radius: 0.8rem;
@@ -11,30 +24,105 @@
     border: 2px;
     color: var(--white);
     flex-grow: 1;
+    justify-self: center;
 }
 
 label{
     color: var(--white);
 }
 
-@media (max-width: 600px) {
-    .new_medicine_header, .edit_medicine_header {
-        font-size: 1.2rem;
+
+
+@media screen and (max-width: 700px) {
+  form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .new_medicine, .edit_medicine {
+    width: 75%;
+  }
+
+  input, select, textarea, form-button{
+    width: 75%;
+  }
+
+}
+
+/* ⬇️ From 600px and below */
+@media screen and (max-width: 600px) {
+    form {
+      padding: 0.8rem;
+    }
+  
+    input, select, textarea {
+      width: 90%;
+    }
+  
+    .content-area{
+        padding: 1rem;
     }
 
     .new_medicine, .edit_medicine {
-        padding: 0.8rem;
-        max-width: 100%;
+      padding: 0.8rem;
     }
-}
-
-@media (max-width: 400px) {
-    .new_medicine_header, .edit_medicine_header {
-        font-size: 1rem;
+  }
+  
+  /* ⬇️ From 500px and below */
+  @media screen and (max-width: 500px) {
+    form {
+      gap: 0.8rem;
     }
-
+  
+    input, select, textarea {
+      width: 85%;
+    }
+  
     .new_medicine, .edit_medicine {
-        border-radius: 0.5rem;
-        padding: 0.6rem;
+      padding: 0.7rem;
     }
-}
+
+    .content-area{
+        padding: 0.5rem;
+    }
+  }
+  
+  /* ⬇️ From 400px and below */
+  @media screen and (max-width: 400px) {
+    input, select, textarea {
+      width: 77%;
+      font-size: 0.9rem;
+    }
+
+    .content-area{
+        padding: 0;
+    }
+  
+    .new_medicine, .edit_medicine {
+      font-size: 0.95rem;
+    }
+  }
+  
+  /* ⬇️ From 300px and below */
+  @media screen and (max-width: 300px) {
+    form {
+      padding: 0.5rem;
+    }
+
+    .content-area{
+        padding: 0;
+    }
+  
+    input, select, textarea {
+      width: 100%;
+      font-size: 0.85rem;
+    }
+  
+    .new_medicine, .edit_medicine {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      width: max-content;
+    }
+  }

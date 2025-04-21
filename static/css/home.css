@@ -167,16 +167,61 @@ th {
   height: 100%;
 }
 
+.hamburger {
+  display: none;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: var(--yellow);
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
 /* ============================= */
 /* 📱 Responsive Styles - Home Page */
 /* ============================= */
 
-@media (max-width: 900px) {
-  .container-box{
-    padding: 0.5rem;
+@media screen and (max-width: 900px) {
+  .hamburger {
+    display: block;
+    width: 60%;          /* Reduce width to 60% of viewport */
+    padding: 0.5rem;      /* Optional: smaller padding */
+    font-size: 0.9rem;    /* Optional: smaller text */
   }
 
-  .menu_dashboard, button{
-    width: 30%;
+  .menu_dashboard {
+    display: none;
+    flex-direction: column;
+    background-color: var(--dark-green);
+    padding: 1rem;
+    border-radius: 0.8rem;
   }
+
+  .side-nav-menu{
+    width: 40%;          /* Reduce width to 60% of viewport */
+    padding: 0.5rem;      /* Optional: smaller padding */
+    font-size: 0.9rem;    /* Optional: smaller text */
+  }
+
+
+  .menu_dashboard.show {
+    display: flex;
+  }
+
+  .content-area {
+    max-width: none;
+  }
+
+  .content-area {
+    width: 120%;
+  }
+
+}
+
+@media screen and (max-width: 800px) {
+
+
+
+
+  
 }

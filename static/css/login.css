@@ -39,29 +39,42 @@ form button:hover {
   background: linear-gradient(to right, #ff9900, #ffcc00);
 }
 
-/* Tablets (Medium Screens: 768px - 1024px) */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .form-box {
-      width: 50%;
+    min-width: 60%;
   }
 }
 
-/* Smartphones (Small Screens: < 768px) */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .form-box {
-      width: 70%;
-  }
-
-  form input, form button {
-      font-size: 14px;
-      padding: 10px;
+    min-width: 80%;
   }
 }
 
-/* Very Small Screens (Mobile Phones: < 600px) */
+/* For screens 600px and below */
 @media (max-width: 600px) {
   .form-box {
-      width: 90%;
+    min-width: 100%;
   }
+}
+
+/* For screens 500px and below */
+@media (max-width: 500px) {
+
+  form{
+    grid-template-columns: 1fr
+  }
+
+  form button, .extend{
+    grid-column: 1/2;
+
+  }
+}
+
+/* For ultra-small screens 300px and below */
+@media (max-width: 400px) {
+   .container-box{
+    padding: 0;
+   }
 }
 

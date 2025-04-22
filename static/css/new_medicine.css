@@ -7,6 +7,10 @@
     display: none;
   }
 
+.side-menu{
+    display: none;
+  }
+
 
   form{
     margin-top: 2rem;
@@ -31,8 +35,6 @@ label{
     color: var(--white);
 }
 
-
-
 @media screen and (max-width: 700px) {
   form {
     display: grid;
@@ -45,10 +47,6 @@ label{
     width: 75%;
   }
 
-  input, select, textarea, form-button{
-    width: 75%;
-  }
-
 }
 
 /* ⬇️ From 600px and below */
@@ -57,16 +55,13 @@ label{
       padding: 0.8rem;
     }
   
-    input, select, textarea {
-      width: 90%;
-    }
-  
     .content-area{
         padding: 1rem;
     }
 
     .new_medicine, .edit_medicine {
       padding: 0.8rem;
+      width: 80%;
     }
   }
   
@@ -75,30 +70,20 @@ label{
     form {
       gap: 0.8rem;
     }
-  
-    input, select, textarea {
-      width: 85%;
-    }
-  
+    
+
     .new_medicine, .edit_medicine {
       padding: 0.7rem;
+      width: 100%;
     }
 
     .content-area{
-        padding: 0.5rem;
+        padding: 1rem;
     }
   }
   
   /* ⬇️ From 400px and below */
   @media screen and (max-width: 400px) {
-    input, select, textarea {
-      width: 77%;
-      font-size: 0.9rem;
-    }
-
-    .content-area{
-        padding: 0;
-    }
   
     .new_medicine, .edit_medicine {
       font-size: 0.95rem;
@@ -109,15 +94,6 @@ label{
   @media screen and (max-width: 300px) {
     form {
       padding: 0.5rem;
-    }
-
-    .content-area{
-        padding: 0;
-    }
-  
-    input, select, textarea {
-      width: 100%;
-      font-size: 0.85rem;
     }
   
     .new_medicine, .edit_medicine {

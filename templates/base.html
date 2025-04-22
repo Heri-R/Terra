@@ -53,6 +53,45 @@
         {% block nav %} {% endblock %}
       </div>
       <div class="content-area">
+        <button class="hamburger-side">&#9776;</button>
+       {% if current_user.is_authenticated %}
+         <div class="side-menu">
+          <div class="side-menu-header">
+            <span id="close-side-menu">&Cross;</span>
+          </div>
+          <div class="side-menu-content">
+            {% set active_assigned = False %}
+            {% if current_user.staff_role.name == "Admin" %}
+          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'dashboard')">
+            <h4 id="menu-heading">Statistics</h4>
+          </div>
+          {% endif %}
+       
+
+          
+          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
+          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'clients')">
+            <h4 id="menu-heading">Clients</h4>
+          </div>
+          {% endif %}
+          
+          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
+          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'medicine')">
+            <h4 id="menu-heading">Medicine</h4>
+          </div>
+          {% endif %}
+          
+          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
+          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'prescription')">
+            <h4 id="menu-heading">Prescription</h4>
+          </div>
+          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'Payment')">
+            <h4 id="menu-heading">Payment</h4>
+          </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
         {% block body %}{% endblock %}
       </div>
     </div>

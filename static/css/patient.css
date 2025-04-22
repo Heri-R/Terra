@@ -8,6 +8,10 @@
     display: none;
   }
 
+  .side-menu{
+    display: none;
+  }
+
   form{
     margin-top: 1rem;
     background-color: var(--dark-green);

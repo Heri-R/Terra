@@ -30,12 +30,12 @@ h1{
   font-family: var(--font);
 }
 
-.hamburger{
+.hamburger, .hamburger-side {
   cursor: pointer;
   display: none;
 }
 
-.hamburger p{
+.hamburger p, .hamburger-side p{
   color: var(--yellow);
   font-size: 1.7rem;
 }

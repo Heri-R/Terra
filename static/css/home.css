@@ -96,23 +96,20 @@ th {
 
 .prescription-box{
   margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3rem;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .prescription-details {
-  flex-grow: 0.2;
+  margin-top: 1rem;
   background-color: var(--dark-green);
   padding: 1rem;
   border-radius: var(--radius-s);
   cursor: pointer;
-  width: 150; /* Set a fixed width for both boxes */
   height: 160px; /* Set a fixed height for both boxes */
   overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
-  display: flex;
-  flex-direction: column; /* Ensures content flows vertically */
+
 }
 
 .prescription-details p, .prescription-details h4 {
@@ -216,7 +213,7 @@ th {
 /* ============================= */
 
 @media screen and (max-width: 1200px) {
-.payment-box{
+  .total_amount{
   grid-template-columns: repeat(2, 1fr);
 }
 
@@ -238,9 +235,67 @@ th {
   }
 }
 
-/* At 700px or below, limit to 3 columns */
-@media (max-width: 700px) {
+@media screen and (max-width: 800px) {
   .statistics {
     grid-template-columns: repeat(3, 1fr); /* 3 columns */
   }
+
+  .most-prescribed {
+    grid-column: 1/3;
+  }
+
+  .most-diagnosed {
+    grid-column: 2/4;
+  }
+
 }
+
+
+
+@media (max-width: 700px) {
+  .prescription-box{
+    grid-template-columns: repeat(1, 1fr); 
+  }
+
+}
+
+@media screen and (max-width: 600px) {
+  .total_amount{
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .statistics {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  }
+
+  .most-diagnosed {
+    grid-column: 1/3;
+  }
+
+  }
+
+  @media screen and (max-width: 400px) {
+    .statistics {
+      grid-template-columns: repeat(1, 1fr); /* 1 columns */
+    }
+
+    .most-diagnosed {
+      grid-column: 1/2;
+    }
+
+    .most-prescribed {
+      grid-column: 1/2;
+    }
+
+    .prescription-box{
+      font-size: small;
+    }
+  
+  }
+
+  @media screen and (max-width: 300px) {
+    .prescription-box{
+      font-size: small;
+    }
+
+  }

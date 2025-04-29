@@ -62,30 +62,28 @@
           <div class="side-menu-content">
             {% set active_assigned = False %}
             {% if current_user.staff_role.name == "Admin" %}
-          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'dashboard')">
+          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'dashboard')">
             <h4 id="menu-heading">Statistics</h4>
           </div>
           {% endif %}
-       
-
-          
+               
           {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
-          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'clients')">
+          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'clients')">
             <h4 id="menu-heading">Clients</h4>
           </div>
           {% endif %}
           
           {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
-          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'medicine')">
+          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'medicine')">
             <h4 id="menu-heading">Medicine</h4>
           </div>
           {% endif %}
           
           {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'prescription')">
+          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'prescription')">
             <h4 id="menu-heading">Prescription</h4>
           </div>
-          <div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'Payment')">
+          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'Payment')">
             <h4 id="menu-heading">Payment</h4>
           </div>
           </div>

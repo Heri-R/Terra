@@ -2,7 +2,19 @@
   display: grid;
   border-radius: 0.8rem;
   gap:3rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  justify-self: center;
+  gap: 3rem;
 
+}
+
+.side-nav-menu{
+  display: none;
+}
+
+.side-menu{
+  display: none;
 }
 
 .client-details{
@@ -19,16 +31,12 @@ p,h4{
 
 .client-details-heading{
   color: var(--black);
+ 
+  gap: 3rem;
 }
 
 
 .client-disease {
-  padding: 1rem;
-  border-radius: 0.8rem;
-  background-color: var(--dark-green);
-}
-
-.client-location {
   padding: 1rem;
   border-radius: 0.8rem;
   background-color: var(--dark-green);
@@ -60,7 +68,7 @@ p,h4{
 /* === 900px and below === */
 @media screen and (max-width: 900px) {
   .container2 {
-    grid-template-columns: 1fr;
+    align-items: center;
     gap: 3rem;
     padding: 1rem;
   }
@@ -76,6 +84,11 @@ p,h4{
 
 /* === 800px and below === */
 @media screen and (max-width: 800px) {
+  .container2 {
+    gap: 3rem;
+    padding: 0;
+  }
+
   .client-details-heading {
     font-size: 1.5rem;
   }
@@ -84,21 +97,26 @@ p,h4{
     font-size: 1rem;
   }
 
-  .search {
-    font-size: 13px;
-  }
+  .client-details,
+  .client-disease,
+  .medicine {
+    padding: 1rem;
+}
+  .medicine-search{
+  width: 50%;
+}
+
 }
 
 /* === 700px and below === */
 @media screen and (max-width: 700px) {
   .container2 {
     gap: 2.5rem;
-    padding: 0.8rem;
+    padding: 0;
   }
 
   .client-details,
   .client-disease,
-  .client-location,
   .medicine {
     padding: 1rem;
   }
@@ -111,12 +129,19 @@ p,h4{
     font-size: 13px;
     padding: 6px 10px;
   }
+
+  .medicine-search{
+    width: 50%;
+  }
 }
 
 /* === 600px and below === */
 @media screen and (max-width: 600px) {
   .client-details-heading {
     font-size: 1.3rem;
+  }
+  .container2 {
+    padding: 0;
   }
 
   p, h4 {
@@ -137,7 +162,7 @@ p,h4{
 @media screen and (max-width: 500px) {
   .container2 {
     gap: 2rem;
-    padding: 0.5rem;
+    padding: 0;
   }
 
   .client-details-heading {
@@ -152,17 +177,13 @@ p,h4{
     font-size: 0.85rem;
   }
 
-  .search {
-    font-size: 12px;
-    padding: 5px 7px;
-  }
 }
 
 /* === 400px and below === */
 @media screen and (max-width: 400px) {
   .container2 {
     gap: 1.5rem;
-    padding: 0.4rem;
+    padding: 0;
   }
 
   .client-details-heading {
@@ -177,17 +198,12 @@ p,h4{
     font-size: 0.8rem;
   }
 
-  .search {
-    font-size: 11.5px;
-    padding: 5px 6px;
-  }
 }
-
 /* === 300px and below === */
 @media screen and (max-width: 300px) {
   .container2 {
     gap: 1rem;
-    padding: 0.3rem;
+    padding: 0;
   }
 
   .client-details-heading {
@@ -207,4 +223,5 @@ p,h4{
     font-size: 11px;
     padding: 4px 5px;
   }
+
 }

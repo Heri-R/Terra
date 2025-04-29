@@ -73,7 +73,7 @@ clients detail page
         <h4>Medicine</h4>
 
         <form action="{{url_for('prescribe_patient',patient_id=clients_details.id) }}" method="post">
-            <select class="disease-search" name="medication">
+            <select class="medicine-search" name="medication">
                 {% for medicine in all_medicines %}
                 <option value="{{ medicine.id }}">{{ medicine.name }}</option>
                 {% endfor %}

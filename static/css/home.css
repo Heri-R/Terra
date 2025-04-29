@@ -1,11 +1,13 @@
 .client-details, .medicine {
   margin-top: 1.5rem;
   height: 76vh;
-  overflow-y: scroll;
-  padding-right: 0.3rem; 
+  overflow-x: scroll;
+  padding-right: 0.3rem;
+  display: grid;
+  gap: 1rem;
 }
 
-.medicine-header,.client-header{
+.medicine-header, .client-header{
   display:flex;
   justify-content: space-between;
   align-items: center;
@@ -17,8 +19,8 @@
 }
 
 table {
-  min-width: 100%;
-  overflow-x: scroll;
+  width: 100%;
+  overflow: hidden;
   padding-bottom: 0.3rem;
 }
 
@@ -26,13 +28,8 @@ table {
   background-color: var(--light-green);
 }
 
-th {
-  color: var(--white);
-}
-
 .add_button{
   float: left;
-
 }
 
 td, th {
@@ -41,6 +38,7 @@ td, th {
 }
 
 th {
+  color: var(--white);
   text-align: left;
 }
 
@@ -248,11 +246,16 @@ th {
     grid-column: 2/4;
   }
 
+  .client-header{
+    flex-direction: column;
+    align-items: start;
+    gap: 1rem;
+  }
 }
 
 
 
-@media (max-width: 700px) {
+@media screen and (max-width: 700px) {
   .prescription-box{
     grid-template-columns: repeat(1, 1fr); 
   }
@@ -271,10 +274,14 @@ th {
   .most-diagnosed {
     grid-column: 1/3;
   }
+  
+}
 
-  }
+@media screen and (max-width: 500px) {
+}
 
-  @media screen and (max-width: 400px) {
+
+ @media screen and (max-width: 400px) {
     .statistics {
       grid-template-columns: repeat(1, 1fr); /* 1 columns */
     }
@@ -289,13 +296,18 @@ th {
 
     .prescription-box{
       font-size: small;
+    }  
+
+    .medicine-header{
+      flex-direction: column;
+      align-items: start;
+      gap: 1rem;
     }
-  
+
   }
 
-  @media screen and (max-width: 300px) {
+@media screen and (max-width: 300px) {
     .prescription-box{
       font-size: small;
     }
-
   }

@@ -117,50 +117,50 @@ home page
      </a>
    </div> 
     <div class="client-details">
-        <table id="client_table">
-            <tr id="th">
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Phone Number</th>
-                <th>Location</th>
-                <th>Specific location</th>
-                <th>Actions</th>
-            </tr>
-            {% for client in clients %}
-            <tr id="client_name">
-                <td>{{ client.id }}</td>
-                <td>
-                    <a href="{{url_for('clients_detail',clients_id=client.id)}}">
-                        {{ client.full_name }}
-                    </a>
-                </td>
-                <td>{{ client.age }}</td>
-                <td>{{ client.gender }}</td>
-                <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
-                <td>
-                  {% if client.location %}
-                  {{ client.client_location.region }}, {{ client.client_location.district }}
-                  {% else %}
-                  - - -
+      <table id="client_table">
+          <tr id="th">
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Phone Number</th>
+              <th>Location</th>
+              <th>Specific location</th>
+              <th>Actions</th>
+          </tr>
+          {% for client in clients %}
+          <tr id="client_name">
+              <td>{{ client.id }}</td>
+              <td>
+                  <a href="{{url_for('clients_detail',clients_id=client.id)}}">
+                      {{ client.full_name }}
+                  </a>
+              </td>
+              <td>{{ client.age }}</td>
+              <td>{{ client.gender }}</td>
+              <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
+              <td>
+                {% if client.location %}
+                {{ client.client_location.region }}, {{ client.client_location.district }}
+                {% else %}
+                - - -
+                {% endif %}
+              </td>
+              <td>
+                {% if client.specific_location %}
+                {{ client.specific_location }}
+                {% else %}
+                - - -
+                {% endif %}
+              </td>
+              <td id="action">
+                  {% if current_user.staff_role.name == "Admin" %}
+                  <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
                   {% endif %}
-                </td>
-                <td>
-                  {% if client.specific_location %}
-                  {{ client.specific_location }}
-                  {% else %}
-                  - - -
-                  {% endif %}
-                </td>
-                <td id="action">
-                    {% if current_user.staff_role.name == "Admin" %}
-                    <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
-                    {% endif %}
-                    <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a></td>
-            </tr>
-            {% endfor %}
-        </table>
+                  <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a></td>
+          </tr>
+          {% endfor %}
+      </table>
     </div>
 </div>
 </div>
@@ -283,7 +283,6 @@ home page
 </div>
 {% endif %}
 <script src="{{ url_for('static', filename='js/search.js') }}"></script>
-
 <script src="{{ url_for('static', filename='js/hamburger.js') }}"></script>
 
 

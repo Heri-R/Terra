@@ -1,7 +1,8 @@
 .client-details, .medicine {
   margin-top: 1.5rem;
-  height: 76vh;
-  overflow-x: scroll;
+  height: max-content;
+  max-height: 76vh;
+  overflow: scroll;
   padding-right: 0.3rem;
   display: grid;
   gap: 1rem;
@@ -224,10 +225,6 @@ th {
     font-size: 0.9rem;    /* Optional: smaller text */
   }
 
-  .side-nav-menu{
-    display: none;
-  }
-
   .hamburger-side {
     display: block;
   }
@@ -251,6 +248,8 @@ th {
     align-items: start;
     gap: 1rem;
   }
+
+  
 }
 
 

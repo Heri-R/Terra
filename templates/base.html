@@ -50,50 +50,16 @@
     {% endwith %}
     <div class="content-box">
       <div class="side-nav-menu">
+        <span id="close-side-menu">&Cross;</span>
         {% block nav %} {% endblock %}
       </div>
       <div class="content-area">
         <button class="hamburger-side">&#9776;</button>
-       {% if current_user.is_authenticated %}
-         <div class="side-menu">
-          <div class="side-menu-header">
-            <span id="close-side-menu">&Cross;</span>
-          </div>
-          <div class="side-menu-content">
-            {% set active_assigned = False %}
-            {% if current_user.staff_role.name == "Admin" %}
-          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'dashboard')">
-            <h4 id="menu-heading">Statistics</h4>
-          </div>
-          {% endif %}
-               
-          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
-          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'clients')">
-            <h4 id="menu-heading">Clients</h4>
-          </div>
-          {% endif %}
-          
-          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
-          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'medicine')">
-            <h4 id="menu-heading">Medicine</h4>
-          </div>
-          {% endif %}
-          
-          {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'prescription')">
-            <h4 id="menu-heading">Prescription</h4>
-          </div>
-          <div class="menu-item-2 {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTabTwo(event, 'Payment')">
-            <h4 id="menu-heading">Payment</h4>
-          </div>
-          </div>
-          {% endif %}
-        </div>
-        {% endif %}
         {% block body %}{% endblock %}
       </div>
     </div>
   </div>
   <script src="{{ url_for('static',filename='js/base.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/hamburger.js') }}"></script>
 </body>
 </html>

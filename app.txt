@@ -23,4 +23,4 @@ Prerequisites:
   ✅charts
   ✅Interactive and simple GUI
 
-95% COMPLETE
+100% COMPLETE

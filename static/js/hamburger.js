@@ -1,5 +1,5 @@
 const hamburger = document.querySelector(".hamburger-side");
-const menu = document.querySelector(".side-menu");
+const menu = document.querySelector(".side-nav-menu");
 const close_menu = document.querySelector("#close-side-menu");
 
 hamburger.addEventListener("click", function () {

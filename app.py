@@ -143,7 +143,8 @@ def home():
     values_of_regions.append(value)
   random_value = random.choice(values_for_Arusha)
   complete_list = list(chain.from_iterable(values_of_regions))
-  complete_list.insert(0, random_value)
+  print(values_of_regions)
+  # complete_list.insert(0, random_value)
 
   # Load Tanzania GeoJSON data
   with open("tanzania.geojson", "r", encoding="utf-8") as f:
@@ -155,6 +156,8 @@ def home():
   for client_location in client_locations:
     if not client_location.region in all_regions:
       all_regions.append(client_location.region)
+  print(regions_with_data)
+  print(complete_list)
   data = {
     "Region": regions_with_data,
     "Disease": complete_list

@@ -135,50 +135,20 @@ def home():
   )
   output = {row.region: [int(d) for d in row.disease_ids.split(",")] if row.disease_ids else [] for row in result}
   regions_with_data = list(output.keys())
-  values_of_regions = []
   values = list(output.values())
-  values_for_Arusha = values[0]
-  values.pop(0)
-  for value in values:
-    values_of_regions.append(value)
-  random_value = random.choice(values_for_Arusha)
-  complete_list = list(chain.from_iterable(values_of_regions))
-  print(values_of_regions)
-  # complete_list.insert(0, random_value)
 
   # Load Tanzania GeoJSON data
   with open("tanzania.geojson", "r", encoding="utf-8") as f:
     tanzania_geo = json.load(f)
-
-  # Sample Data: diagnosed disesase rates for different regions
-  client_locations = ClientLocation.query.all()
-  all_regions = []
-  for client_location in client_locations:
-    if not client_location.region in all_regions:
-      all_regions.append(client_location.region)
-  print(regions_with_data)
-  print(complete_list)
+  
   data = {
     "Region": regions_with_data,
-    "Disease": complete_list
+    "Disease": values
   }
   state_data = pd.DataFrame(data)
 
   # Create a map centered on Tanzania
   m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
-
-  # Create a choropleth layer
-  # folium.Choropleth(
-  #   geo_data=tanzania_geo,
-  #   name="choropleth",
-  #   data=state_data,
-  #   columns=["Region", "Disease"],
-  #   key_on="feature.properties.shapeName",  # Adjust based on GeoJSON structure
-  #   fill_color="YlGn",
-  #   fill_opacity=0.7,
-  #   line_opacity=0.2,
-  #   legend_name="Most diagnosed disease (%)",
-  # ).add_to(m)
 
   folium.GeoJson(
         tanzania_geo,
@@ -222,8 +192,6 @@ def home():
           aliases=["Region:","Disease count:","Disease name:","Most diagnosed:"],
           labels=True,
           sticky=False
-          
-
       )
       # Manually add disease count data to each region in GeoJSON
 

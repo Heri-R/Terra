@@ -479,7 +479,7 @@ def clients_delete(clients_id):
   db.session.commit()
 
   flash('Record deleted succesfuly',category="success")
-  return redirect(url_for('Client'))
+  return redirect(url_for('home'))
 
   
 @app.route("/New_patient", methods=["GET", "POST"])

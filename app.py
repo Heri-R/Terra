@@ -105,106 +105,107 @@ def home():
   client_medicines = ClientMedicine.query.all()
   payments = ClientPayment.query.all()
   diseases = Diseases.query.all()
+  try:    
+    #Most diagnosed disease
+    diagnosed_data= ClientDisease.query.all()
+    diagnosed_disease_ids= []
+    for diagnosis in diagnosed_data:
+      diagnosed_disease_ids.append(diagnosis.disease_id)
+    diagnosis = Counter(diagnosed_disease_ids)
+    most_diagnosed_diseases, diagnosed_count = diagnosis.most_common(1)[0]
 
-  #Most diagnosed disease
-  diagnosed_data= ClientDisease.query.all()
-  diagnosed_disease_ids= []
-  for diagnosis in diagnosed_data:
-    diagnosed_disease_ids.append(diagnosis.disease_id)
-  diagnosis = Counter(diagnosed_disease_ids)
-  most_diagnosed_diseases, diagnosed_count = diagnosis.most_common(1)[0]
-
-  #Most prescribed medication
-  prescription_data = Prescriptions.query.all()
-  prescribed_medicine_ids = []
-  for prescription in prescription_data:
-    prescribed_medicine_ids.append(prescription.medicine_id)
-  prescriptions = Counter(prescribed_medicine_ids)
-  most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
-  
-  #Paste belowe here
-  result = (
-    db.session.query(
-        ClientLocation.region,
-        func.string_agg(cast(ClientDisease.disease_id, String(10)), literal_column("','")).label("disease_ids")
+    #Most prescribed medication
+    prescription_data = Prescriptions.query.all()
+    prescribed_medicine_ids = []
+    for prescription in prescription_data:
+      prescribed_medicine_ids.append(prescription.medicine_id)
+    prescriptions = Counter(prescribed_medicine_ids)
+    most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
+    
+    #Paste belowe here
+    result = (
+      db.session.query(
+          ClientLocation.region,
+          func.string_agg(cast(ClientDisease.disease_id, String(10)), literal_column("','")).label("disease_ids")
+      )
+      .join(Clients, Clients.location == ClientLocation.id)
+      .join(ClientDisease, ClientDisease.client_id == Clients.id)
+      .group_by(ClientLocation.region)
+      .all()
     )
-    .join(Clients, Clients.location == ClientLocation.id)
-    .join(ClientDisease, ClientDisease.client_id == Clients.id)
-    .group_by(ClientLocation.region)
-    .all()
-  )
-  output = {row.region: [int(d) for d in row.disease_ids.split(",")] if row.disease_ids else [] for row in result}
-  regions_with_data = list(output.keys())
-  values = list(output.values())
+    output = {row.region: [int(d) for d in row.disease_ids.split(",")] if row.disease_ids else [] for row in result}
+    regions_with_data = list(output.keys())
+    values = list(output.values())
 
-  # Load Tanzania GeoJSON data
-  with open("tanzania.geojson", "r", encoding="utf-8") as f:
-    tanzania_geo = json.load(f)
-  
-  data = {
-    "Region": regions_with_data,
-    "Disease": values
-  }
-  state_data = pd.DataFrame(data)
+    # Load Tanzania GeoJSON data
+    with open("tanzania.geojson", "r", encoding="utf-8") as f:
+      tanzania_geo = json.load(f)
+    
+    data = {
+      "Region": regions_with_data,
+      "Disease": values
+    }
+    state_data = pd.DataFrame(data)
 
-  # Create a map centered on Tanzania
-  m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
+    # Create a map centered on Tanzania
+    m = folium.Map(location=[-6.369028, 34.888822], zoom_start=6)
 
-  folium.GeoJson(
+    folium.GeoJson(
+          tanzania_geo,
+          name="Region Borders",
+          style_function=lambda feature: {
+              "fillColor": "yellow",  # Keep regions yellow
+              "color": "black",  # Border color
+              "weight": 2,  # Border thickness
+          },
+          tooltip=folium.GeoJsonTooltip(
+              fields=["shapeName"],  # Adjust based on your GeoJSON properties
+              aliases=["Region:"],
+              sticky=True
+          )
+      ).add_to(m)
+
+
+    for feature in tanzania_geo["features"]:
+      region_name = feature["properties"]["shapeName"]
+      feature["properties"]["DiseaseCount"] = len(output.get(region_name, []))
+      diagnosed_diseases = output.get(region_name, [])
+      most_diagnosed_disease = Counter(diagnosed_diseases).most_common(1)
+      if most_diagnosed_disease:
+        x,y = most_diagnosed_disease[0]
+        most_diagnosed_disease_name= [disease.name for disease in diseases if disease.id == x]
+        feature["properties"]["MostDiagnosed"] = [most_diagnosed_disease_name[0]] if most_diagnosed_disease_name else ["none"]
+      else:
+        feature["properties"]["MostDiagnosed"] = ["none"]
+
+      feature["properties"]["DiseaseNames"] = [disease.name for disease in diseases for disease_id in output.get(region_name, []) if disease.id == disease_id]
+
+    # Add a hover tooltip to display region name & disease count
+    folium.GeoJson(
         tanzania_geo,
-        name="Region Borders",
         style_function=lambda feature: {
-            "fillColor": "yellow",  # Keep regions yellow
-            "color": "black",  # Border color
-            "weight": 2,  # Border thickness
+            "fillColor": "transparent", 
+            "color": "transparent"
         },
         tooltip=folium.GeoJsonTooltip(
-            fields=["shapeName"],  # Adjust based on your GeoJSON properties
-            aliases=["Region:"],
-            sticky=True
+            fields=["shapeName","DiseaseCount","DiseaseNames","MostDiagnosed"],
+            aliases=["Region:","Disease count:","Disease name:","Most diagnosed:"],
+            labels=True,
+            sticky=False
         )
-    ).add_to(m)
+        # Manually add disease count data to each region in GeoJSON
 
+      ).add_to(m)
 
-  for feature in tanzania_geo["features"]:
-    region_name = feature["properties"]["shapeName"]
-    feature["properties"]["DiseaseCount"] = len(output.get(region_name, []))
-    diagnosed_diseases = output.get(region_name, [])
-    most_diagnosed_disease = Counter(diagnosed_diseases).most_common(1)
-    if most_diagnosed_disease:
-      x,y = most_diagnosed_disease[0]
-      most_diagnosed_disease_name= [disease.name for disease in diseases if disease.id == x]
-      feature["properties"]["MostDiagnosed"] = [most_diagnosed_disease_name[0]] if most_diagnosed_disease_name else ["none"]
-    else:
-      feature["properties"]["MostDiagnosed"] = ["none"]
+    # Add layer control
+    folium.LayerControl().add_to(m)
 
-    feature["properties"]["DiseaseNames"] = [disease.name for disease in diseases for disease_id in output.get(region_name, []) if disease.id == disease_id]
-
-  # Add a hover tooltip to display region name & disease count
-  folium.GeoJson(
-      tanzania_geo,
-      style_function=lambda feature: {
-          "fillColor": "transparent", 
-          "color": "transparent"
-      },
-      tooltip=folium.GeoJsonTooltip(
-          fields=["shapeName","DiseaseCount","DiseaseNames","MostDiagnosed"],
-          aliases=["Region:","Disease count:","Disease name:","Most diagnosed:"],
-          labels=True,
-          sticky=False
-      )
-      # Manually add disease count data to each region in GeoJSON
-
-    ).add_to(m)
-
-  # Add layer control
-  folium.LayerControl().add_to(m)
-
-  # Store map HTML in a variable
-  map_html = m.get_root().render()
-  with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
-    f.write(map_html)
- 
+    # Store map HTML in a variable
+    map_html = m.get_root().render()
+    with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
+      f.write(map_html)
+  except Exception as e:
+    flash(f"{repr(e)}")
   return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
 
 @app.route("/map")

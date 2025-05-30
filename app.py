@@ -207,6 +207,7 @@ def home():
     return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
   except Exception as e:
     flash(f"{repr(e)}")
+    return "Page not found"
 
 @app.route("/map")
 def map():

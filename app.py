@@ -100,12 +100,12 @@ def Logout():
 @login_required
 @fresh_login_required
 def home():
-  clients = Clients.query.all()
-  medicines = Medicine.query.all()
-  client_medicines = ClientMedicine.query.all()
-  payments = ClientPayment.query.all()
-  diseases = Diseases.query.all()
   try:    
+    clients = Clients.query.all()
+    medicines = Medicine.query.all()
+    client_medicines = ClientMedicine.query.all()
+    payments = ClientPayment.query.all()
+    diseases = Diseases.query.all()
     #Most diagnosed disease
     diagnosed_data= ClientDisease.query.all()
     diagnosed_disease_ids= []
@@ -204,9 +204,9 @@ def home():
     map_html = m.get_root().render()
     with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
       f.write(map_html)
+    return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
   except Exception as e:
     flash(f"{repr(e)}")
-  return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
 
 @app.route("/map")
 def map():

@@ -388,6 +388,7 @@ def remove_medicine(medicine_id):
   return redirect(url_for("home"))
 
 @app.route("/Client_details/<int:clients_id>")
+@login_required
 def clients_detail(clients_id):
   clients_details = Clients.query.get(clients_id)
   all_diseases = Diseases.query.all()
@@ -525,6 +526,7 @@ def New_disease():
   return render_template('new_disease.html')
 
 @app.route("/New_medicine", methods=["GET", "POST"])
+@login_required
 def New_medicine():
 
   if request.method == "POST":

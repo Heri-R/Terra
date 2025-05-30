@@ -87,7 +87,7 @@ def Login():
         flash("This password is incorrect",category="danger")
         return redirect(url_for("Login"))
   
-  return render_template("Login.html")
+  return render_template("login.html")
 
 @app.route("/Logout")
 def Logout():

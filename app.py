@@ -122,7 +122,7 @@ def home():
     prescriptions = Counter(prescribed_medicine_ids)
     most_prescribed_medicine, prescribed_count = prescriptions.most_common(1)[0]
     
-    #Paste belowe here
+    #Paste below here
     result = (
       db.session.query(
           ClientLocation.region,

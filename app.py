@@ -279,6 +279,7 @@ def Medicines():
   return render_template("medicine.html",medicines=medicines)
 
 @app.route("/edit-medicine/<int:medicine_id>", methods=["POST", "GET"])
+@login_required
 def edit_medicine(medicine_id):
   medicine = Medicine.query.get(medicine_id)
   if not medicine:
@@ -367,7 +368,8 @@ def medicine_payment(client_id):
   return redirect(url_for("clients_detail", clients_id=client.id))
 
 
-@app.route("/medicine-stock/<int:medicine_id>", methods=["POST","GET"])    
+@app.route("/medicine-stock/<int:medicine_id>", methods=["POST","GET"])
+@login_required  
 def medicine_stock(medicine_id):
   medicine = Medicine.query.get(medicine_id)
   if request.method == "POST":
@@ -405,6 +407,7 @@ def clients_detail(clients_id):
   return render_template('client_details.html', clients_details=clients_details, all_diseases=all_diseases, client_diseases=client_diseases,all_medicines=all_medicines,client_medicines=client_medicines, locations=locations, client_payments=client_payments)
 
 @app.route("/edit-client/<int:client_id>", methods=["POST", "GET"])
+@login_required
 def edit_client(client_id):
   client = Clients.query.get(client_id)
   location = ClientLocation.query.all()
@@ -486,6 +489,7 @@ def clients_delete(clients_id):
 
   
 @app.route("/New_patient", methods=["GET", "POST"])
+@login_required
 def New_patient():
   location= ClientLocation.query.all()
   if request.method=="POST":
@@ -513,6 +517,7 @@ def New_patient():
   return render_template('new_patient.html', location=location)
 
 @app.route("/New_disease", methods=["GET", "POST"])
+@login_required
 def New_disease():
   if request.method == "POST":
     Disease_name=request.form.get("dname")

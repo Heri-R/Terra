@@ -54,6 +54,7 @@ def add_medicine():
     new_medicine = Medicine(
       name = name,
       price = price,
+      quantity = 100,
     )
     db.session.add(new_medicine)
     db.session.commit()

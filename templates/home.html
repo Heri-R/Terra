@@ -7,35 +7,40 @@
 
 {% endblock %}
 
-{% block title %} 
-home page 
+{% block title %}
+home page
 {% endblock %}
 
 {% block nav %}
 {% set active_assigned = False %}
 {% if current_user.staff_role.name == "Admin" %}
-<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'dashboard')">
+<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}"
+  onclick="openTab(event, 'dashboard')">
   <h4 id="menu-heading">Statistics</h4>
 </div>
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
-<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'clients')">
+<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}"
+  onclick="openTab(event, 'clients')">
   <h4 id="menu-heading">Clients</h4>
 </div>
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
-<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'medicine')">
+<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}"
+  onclick="openTab(event, 'medicine')">
   <h4 id="menu-heading">Medicine</h4>
 </div>
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'prescription')">
+<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}"
+  onclick="openTab(event, 'prescription')">
   <h4 id="menu-heading">Prescription</h4>
 </div>
-<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}" onclick="openTab(event, 'Payment')">
+<div class="menu-item {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}"
+  onclick="openTab(event, 'Payment')">
   <h4 id="menu-heading">Payment</h4>
 </div>
 {% endif %}
@@ -43,7 +48,8 @@ home page
 
 {% block body %}
 
-<div id="dashboard" class="tab-content">
+{% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
+<div id="dashboard" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
   <div class="tab">
     <div class="tab-content-header">
       <h4>Dashboard</h4>
@@ -79,11 +85,11 @@ home page
         <p>Total transactions</p>
         <h4>{{ payments|count }}</h4>
       </div>
-      
+
       <div class="most-diagnosed stats">
         <h4>Most diagnosed disease</h4>
         {%for disease in diseases if disease.id == most_diagnosed_diseases %}
-        <p>Disease {{ disease.name }} diagnosed  <b>{{diagnosed_count}} times </b> </p>
+        <p>Disease {{ disease.name }} diagnosed <b>{{diagnosed_count}} times </b> </p>
         {% endfor %}
       </div>
 
@@ -94,7 +100,7 @@ home page
         {% endfor %}
       </div>
     </div>
-    
+
     <div class="map_chart">
       <iframe src="{{url_for('map')}}" frameborder="0"></iframe>
     </div>
@@ -102,161 +108,165 @@ home page
   </div>
 
 </div>
+{% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Clerk" %}
 <div id="clients" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
-<div class="tab-content-header">
-   <div class="client-header">
-     <h4 id="heading">Clients</h4>
-     <div class="client_input">
-       <input type="text" id="Csearch" placeholder="Find Client">
-       <i class="fa fa-search"></i>
-     </div>
-     <a href="{{url_for('New_patient')}}">
-       <button>Add Patient</button>
-     </a>
-   </div> 
+  <div class="tab-content-header">
+    <div class="client-header">
+      <h4 id="heading">Clients</h4>
+      <div class="client_input">
+        <input type="text" id="Csearch" placeholder="Find Client">
+        <i class="fa fa-search"></i>
+      </div>
+      <a href="{{url_for('New_patient')}}">
+        <button>Add Patient</button>
+      </a>
+    </div>
     <div class="client-details">
       <table id="client_table">
-          <tr id="th">
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Phone Number</th>
-              <th>Location</th>
-              <th>Specific location</th>
-              <th>Actions</th>
-          </tr>
-          {% for client in clients %}
-          <tr id="client_name">
-              <td>{{ client.id }}</td>
-              <td>
-                  <a href="{{url_for('clients_detail',clients_id=client.id)}}">
-                      {{ client.full_name }}
-                  </a>
-              </td>
-              <td>{{ client.age }}</td>
-              <td>{{ client.gender }}</td>
-              <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
-              <td>
-                {% if client.location %}
-                {{ client.client_location.region }}, {{ client.client_location.district }}
-                {% else %}
-                - - -
-                {% endif %}
-              </td>
-              <td>
-                {% if client.specific_location %}
-                {{ client.specific_location }}
-                {% else %}
-                - - -
-                {% endif %}
-              </td>
-              <td id="action">
-                  {% if current_user.staff_role.name == "Admin" %}
-                  <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
-                  {% endif %}
-                  <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a></td>
-          </tr>
-          {% endfor %}
+        <tr id="th">
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Phone Number</th>
+          <th>Location</th>
+          <th>Specific location</th>
+          <th>Actions</th>
+        </tr>
+        {% for client in clients %}
+        <tr id="client_name">
+          <td>{{ client.id }}</td>
+          <td>
+            <a href="{{url_for('clients_detail',clients_id=client.id)}}">
+              {{ client.full_name }}
+            </a>
+          </td>
+          <td>{{ client.age }}</td>
+          <td>{{ client.gender }}</td>
+          <td>{{ client.phone_number_1 }}/{{ client.phone_number_2 }}</td>
+          <td>
+            {% if client.location %}
+            {{ client.client_location.region }}, {{ client.client_location.district }}
+            {% else %}
+            - - -
+            {% endif %}
+          </td>
+          <td>
+            {% if client.specific_location %}
+            {{ client.specific_location }}
+            {% else %}
+            - - -
+            {% endif %}
+          </td>
+          <td id="action">
+            {% if current_user.staff_role.name == "Admin" %}
+            <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
+            {% endif %}
+            <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a>
+          </td>
+        </tr>
+        {% endfor %}
       </table>
     </div>
-</div>
+  </div>
 </div>
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Stock Controller" %}
 <div id="medicine" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
-<div class="tab-content-header">
+  <div class="tab-content-header">
     <div class="medicine-header">
       <h4>Medicine</h4>
       <div class="medicine_input">
         <input type="text" id="Msearch" placeholder="Find medicine">
-         <i class="fa fa-search"></i>
+        <i class="fa fa-search"></i>
       </div>
-      <a href ="{{url_for('New_medicine')}}">
+      <a href="{{url_for('New_medicine')}}">
         <button id="add_button">Add Medicine</button>
       </a>
     </div>
     <div class="medicine">
-        <table id="medicine_table">
-            <tr id="th">
-              <th>ID</th>
-              <th>Name</th>
-              <th>Stock Quantity</th>
-              <th>Price</th>
-              <th>Action</th>
-            </tr>
-         {% for medicine in medicines %}
-          <tr id="medicine_name">
-            <td>{{ medicine.id }}</td>
-            <td>{{ medicine.name }}</td>
-            <td>{{ medicine.quantity }}</td>
-            <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
-            <td id="action">
-              {% if current_user.staff_role.name == "Admin" %}
-              <a href="{{ url_for('remove_medicine', medicine_id=medicine.id) }}">Remove</a>
-              {% endif %}
-              <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a>
-              <a href="{{ url_for('medicine_stock',medicine_id=medicine.id) }}">Add stock</a></td>
-          </tr>
-         {% endfor %}
-        </table>
+      <table id="medicine_table">
+        <tr id="th">
+          <th>ID</th>
+          <th>Name</th>
+          <th>Stock Quantity</th>
+          <th>Price</th>
+          <th>Action</th>
+        </tr>
+        {% for medicine in medicines %}
+        <tr id="medicine_name">
+          <td>{{ medicine.id }}</td>
+          <td>{{ medicine.name }}</td>
+          <td>{{ medicine.quantity }}</td>
+          <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
+          <td id="action">
+            {% if current_user.staff_role.name == "Admin" %}
+            <a href="{{ url_for('remove_medicine', medicine_id=medicine.id) }}">Remove</a>
+            {% endif %}
+            <a href="{{ url_for('edit_medicine',medicine_id=medicine.id) }}">Edit</a>
+            <a href="{{ url_for('medicine_stock',medicine_id=medicine.id) }}">Add stock</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
     </div>
-</div>
+  </div>
 </div>
 {% endif %}
 
 {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant" %}
-<div id="prescription" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
-<div class="tab-content-header">
-  <h4>Prescription</h4>
-  <div class="prescription_input">
-    <input type="text" id="Prescription_search" placeholder="Find prescription">
-    <i class="fa fa-search"></i>
-  </div>
-  <div class="prescription-box">
-    {% for client_medicine in client_medicines if client_medicine.is_paid == False %}
-    {% set total = [] %}
-    <div class="prescription-details">
-      {% for prescription in client_medicine.prescription %}
-      {% for medicine in medicines if medicine.id == prescription.medicine_id %}
-      {{ total.append(medicine.price) or "" }}
-      <div class="prescription">
-        <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
-      </div>
-      {% endfor %}
-      {% endfor %}
-      <div class="prescription-client">
-        {% for client in clients if client.id == client_medicine.client_id %}
-        <p><b>{{ client.full_name }}</b></p>
-        {% endfor %}
-      </div>
-      <div class="total-box">
-        <h4>{{ "Tsh {:,}".format(total|sum) }}</h4>
-      </div>
-      <span class="payment-state">NOT PAID</span>
-
-      <div class="payment">
-        <a href="{{ url_for('medicine_payment', client_id=client_medicine.client_id) }}">
-          <button>PAY</button>
-        </a>
-      </div>
+<div id="prescription"
+  class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
+  <div class="tab-content-header">
+    <h4>Prescription</h4>
+    <div class="prescription_input">
+      <input type="text" id="Prescription_search" placeholder="Find prescription">
+      <i class="fa fa-search"></i>
     </div>
-    {% endfor %}
+    <div class="prescription-box">
+      {% for client_medicine in client_medicines if client_medicine.is_paid == False %}
+      {% set total = [] %}
+      <div class="prescription-details">
+        {% for prescription in client_medicine.prescription %}
+        {% for medicine in medicines if medicine.id == prescription.medicine_id %}
+        {{ total.append(medicine.price) or "" }}
+        <div class="prescription">
+          <p>{{ medicine.name }} - {{ "Tsh {:,}".format(medicine.price) }}</p>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        <div class="prescription-client">
+          {% for client in clients if client.id == client_medicine.client_id %}
+          <p><b>{{ client.full_name }}</b></p>
+          {% endfor %}
+        </div>
+        <div class="total-box">
+          <h4>{{ "Tsh {:,}".format(total|sum) }}</h4>
+        </div>
+        <span class="payment-state">NOT PAID</span>
+
+        <div class="payment">
+          <a href="{{ url_for('medicine_payment', client_id=client_medicine.client_id) }}">
+            <button>PAY</button>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
-</div>
 </div>
 
 <div id="Payment" class="tab-content {% if not active_assigned %}active{% set active_assigned = True %}{% endif %}">
- <div class="tab-content-header">
+  <div class="tab-content-header">
     <h4 id="payment_h4">Payment</h4>
     <div class="payment_input">
       <input type="text" id="Psearch" placeholder="Find payment">
       <i class="fa fa-search"></i>
     </div>
-    
+
     <div class="payment-box">
       {% set total_amount = [] %}
       <div class="total_amount">
@@ -265,7 +275,7 @@ home page
         <div id="payment_info" class="payment">
           <h4>Amount: {{"Tsh {:,}".format(payment.amount)}}</h4>
           <p>Date Paid: {{ payment.date_paid.strftime("%d/%m/%Y at %I:%M %p") }}</p>
-          <p id="client_pname">Client: 
+          <p id="client_pname">Client:
             {% for client_medicine in client_medicines if client_medicine.client_payment_id == payment.id %}
             {% for client in clients if client.id == client_medicine.client_id %}
             {{ client.full_name }}
@@ -278,8 +288,8 @@ home page
       </div>
       <p><b>Total amount: {{ "Tsh {:,}".format(total_amount|sum) }}</b></p>
     </div>
-    
- </div>
+
+  </div>
 </div>
 {% endif %}
 <script src="{{ url_for('static', filename='js/search.js') }}"></script>

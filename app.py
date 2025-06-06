@@ -44,11 +44,11 @@ def register():
 
   if request.method=="POST":
     emailaddress=Staff.query.filter_by(email=request.form.get("email3")).first()
-    if emailaddress: 
-      print("This Email already exists")
+    if emailaddress:
+      flash("Email already exists", "danger")
       return redirect(url_for("register"))
     elif request.form.get("password4") != request.form.get("password5"):
-      print("This password did not match")
+      flash("This password did not match", "danger")
       return redirect(url_for("register"))
     elif staff_count == 5:
       flash("Only 5 user accounts are allowed", category="warning")
@@ -63,7 +63,7 @@ def register():
       )
       db.session.add(new_staff)
       db.session.commit()
-      print("New staff added")
+      flash("Account created successfully", "success")
       return redirect(url_for("Login"))
 
   return render_template("register.html", roles=roles)
@@ -100,15 +100,16 @@ def Logout():
 @login_required
 @fresh_login_required
 def home():
-  try:    
-    clients = Clients.query.all()
-    medicines = Medicine.query.all()
-    client_medicines = ClientMedicine.query.all()
-    payments = ClientPayment.query.all()
-    diseases = Diseases.query.all()
-    #Most diagnosed disease
-    diagnosed_data= ClientDisease.query.all()
-    diagnosed_disease_ids= []
+  clients = Clients.query.all()
+  medicines = Medicine.query.all()
+  client_medicines = ClientMedicine.query.all()
+  payments = ClientPayment.query.all()
+  diseases = Diseases.query.all()
+  #Most diagnosed disease
+  diagnosed_data= ClientDisease.query.all()
+  diagnosed_disease_ids = []
+
+  if diagnosed_data:
     for diagnosis in diagnosed_data:
       diagnosed_disease_ids.append(diagnosis.disease_id)
     diagnosis = Counter(diagnosed_disease_ids)
@@ -205,13 +206,15 @@ def home():
     with open("templates/tanzania_map.html", "w", encoding="utf-8") as f:
       f.write(map_html)
     return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines,payments=payments, prescriptions=prescriptions, most_prescribed_medicine=most_prescribed_medicine, prescribed_count=prescribed_count, most_diagnosed_diseases=most_diagnosed_diseases, diagnosed_count=diagnosed_count)
-  except Exception as e:
-    flash(f"{repr(e)}")
-    return "Page not found"
+  else:
+    return render_template("home.html",clients=clients, medicines=medicines, diseases=diseases ,client_medicines=client_medicines, payments=payments)
 
 @app.route("/map")
 def map():
-  return render_template("tanzania_map.html")
+  try:
+    return render_template("tanzania_map.html")
+  except:
+    return "No data to display on the map"
 
 @app.route("/Clients")
 def Client():

@@ -42,6 +42,6 @@ def add_roles():
 
 if __name__ == "__main__":
   with app.app_context():
-    # drop_tables()
+    drop_tables()
     create_tables()
     add_roles()

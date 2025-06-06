@@ -50,8 +50,8 @@ def register():
     elif request.form.get("password4") != request.form.get("password5"):
       flash("This password did not match", category="danger")
       return redirect(url_for("register"))
-    elif staff_count == 5:
-      flash("Only 5 user accounts are allowed", category="warning")
+    elif staff_count == 6:
+      flash("Only 6 user accounts are allowed", category="warning")
       return redirect(url_for("register"))
     else:
       new_staff=Staff(

@@ -381,7 +381,7 @@ def medicine_stock(medicine_id):
   medicine = Medicine.query.get(medicine_id)
   if request.method == "POST":
     stock_amount = request.form.get("stock")
-    medicine.quantity = stock_amount
+    medicine.quantity = medicine.quantity + int(stock_amount)
     db.session.commit()
     flash("Stock added succesfully", category='success')
 

@@ -56,10 +56,9 @@ h1 {
   display: none;
 }
 
-.hamburger p,
-.hamburger-side p {
-  color: var(--yellow);
-  font-size: 1.7rem;
+.hamburger p {
+  color: var(--dark);
+  font-size: 1.5rem;
 }
 
 p,
@@ -108,6 +107,12 @@ select {
   padding: 1em;
   border-radius: var(--radius-s);
   width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 1px solid var(--light-green);
 }
 
 .container {
@@ -163,10 +168,20 @@ header {
 .sidebar-header {
   padding: 0 1.5rem;
   border-bottom: 1px solid #f1f5f9;
+  position: relative;
 }
 
 .sidebar-header img {
   height: 4rem;
+}
+
+#close-sidebar {
+  position: absolute;
+  color: red;
+  font-size: 2.5rem;
+  top: 0;
+  right: 1rem;
+  display: none;
 }
 
 .nav {
@@ -175,7 +190,8 @@ header {
   padding: 1.5rem 0;
 }
 
-.nav-item {
+.nav-item,
+.nav-item-link {
   padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
@@ -186,7 +202,8 @@ header {
   transition: all 0.2s;
 }
 
-.nav-item i {
+.nav-item i,
+.nav-item-link i {
   margin-right: 0.75rem;
   width: 24px;
   text-align: center;
@@ -199,7 +216,8 @@ header {
   border-right: 3px solid var(--yellow);
 }
 
-.nav-item:hover {
+.nav-item:hover,
+.nav-item-link:hover {
   background-color: var(--light-grey);
 }
 
@@ -393,6 +411,7 @@ header {
   font-size: 1.5rem;
   color: var(--dark);
   cursor: pointer;
+  padding: 0;
 }
 
 .tab-content,
@@ -527,32 +546,30 @@ header {
   animation-play-state: paused;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .flash-messages {
-    max-width: calc(100% - 2rem);
-    left: 1rem;
-    right: 1rem;
-    top: 1rem;
-  }
-
-  @keyframes slide-in {
-    from {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-}
-
 .header-logo {
   cursor: pointer;
 }
 
-/* === Responsive Adjustments === */
+@media screen and (max-width: 1000px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .hamburger,
+  #close-sidebar {
+    display: block;
+  }
+}
 
 @media screen and (max-width: 900px) {
   #close-side-menu {
@@ -564,10 +581,6 @@ header {
     transition: 250ms ease-in;
     position: fixed;
     inset: 0;
-  }
-
-  .hamburger-side {
-    display: block;
   }
 }
 
@@ -588,8 +601,22 @@ header {
     display: none;
   }
 
-  .hamburger {
-    display: block;
+  .flash-messages {
+    max-width: calc(100% - 2rem);
+    left: 1rem;
+    right: 1rem;
+    top: 1rem;
+  }
+
+  @keyframes slide-in {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 }
 

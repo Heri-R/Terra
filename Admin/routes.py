@@ -1,18 +1,18 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_login import login_required, fresh_login_required
+from flask_login import login_required
 from Models.base_model import db, get_local_time
 from Models.users import Patients, PatientAddress
 from Models.medicine import Medicine
 from Models.diseases import Disease
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
-from Models.appointment import Appointment
+from Models.appointment import Appointment, Feedback
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
-from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm
+from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
-from collections import Counter
+from collections import Counter, defaultdict
 import folium
 import pandas as pd
 from sqlalchemy.sql import func, cast, literal_column
@@ -54,6 +54,7 @@ def home():
   return render_template("Main/home.html", **context)
 
 @admin.route("/find-patient/<string:search_text>")
+@login_required
 def patient_search(search_text):
   patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).all()
   
@@ -117,7 +118,10 @@ def edit_medicine(medicine_id):
 
   if form.validate_on_submit():
     try:
-      form.populate_obj(medicine)
+      medicine.name = form.name.data
+      medicine.price = form.price.data
+      if form.quantity.data:
+        medicine.quantity = medicine.quantity + form.quantity.data
       db.session.commit()
       flash("Medicine updated successfully", "success")
       return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
@@ -222,6 +226,7 @@ def remove_disease(disease_id):
 @login_required
 def add_patient():
   form = AddPatientForm()
+  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
   if form.validate_on_submit():
     try:
       patient = Patients(
@@ -230,18 +235,10 @@ def add_patient():
         age = form.age.data,
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
-        phone_number_2 = form.phone_number_2.data
+        phone_number_2 = form.phone_number_2.data,
+        address = form.address.data
       )
       db.session.add(patient)
-      db.session.flush()
-      if form.region.data or form.district.data:
-        address = PatientAddress(
-          region = form.region.data,
-          district = form.district.data,
-          patient_id = patient.id
-        )
-        db.session.add(address)
-      
       db.session.commit()
       flash('Patient created successfully!', 'success')
       return redirect(url_for('admin.home'))
@@ -264,28 +261,13 @@ def edit_patient(patient_id):
   if not patient:
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
-  
-  patient_address = PatientAddress.query.filter_by(patient_id=patient.id).first()
-
-  form_data = {}
-  form_data.update(patient.to_dict())
-  if patient_address:
-    form_data.update(patient_address.to_dict())
-    
-  form = AddPatientForm(data=form_data)
-
+      
+  form = AddPatientForm(obj=patient)
+  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
   if form.validate_on_submit():
     try:
       form.populate_obj(patient)
-      if patient_address:
-        form.populate_obj(patient_address)
-      else:
-        address = PatientAddress(
-          region = form.region.data,
-          district = form.district.data,
-          patient_id = patient.id
-        )
-        db.session.add(address)
+      patient.address_id = form.address.data
       db.session.commit()
       flash("Patient details updated successfully", "success")
     except Exception as e:
@@ -321,7 +303,7 @@ def patient_profile(patient_id):
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
 
-  patient_address = PatientAddress.query.filter_by(patient_id=patient.id).first()
+  patient_address = PatientAddress.query.filter_by(id=patient.address_id).first()
   patient_lab_analysis = LabAnalysis.query.filter_by(patient_id=patient.id).all()
   patient_prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
   patient_payments = Payment.query.filter_by(patient_id=patient.id).all()
@@ -400,6 +382,8 @@ def appointment(appointment_id):
     "prescription_details": prescription_details,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
+    "feedback": Feedback.query.filter_by(appointment_id=appointment.id).first(),
+    "form": FeedbackForm() 
   }
 
   return render_template("Main/appointment.html", **context)
@@ -582,7 +566,6 @@ def add_prescription(appointment_id):
       form.populate_obj(existing_prescription)
 
     db.session.commit()
-    flash("Prescription saved successfully", "success")
   except Exception as e:
     db.session.rollback()
     flash(f"Error: {str(e)}", "danger")
@@ -593,13 +576,17 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
   prescription = Prescription.query.get(prescription_id)
   for medicine_id in prescribed_medicine_ids:
     medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-    new_prescription_detail = PrescriptionDetails(
-      prescription_id = prescription.id,
-      medicine_id = medicine.id,
-      amount = medicine.price
-    )
-    db.session.add(new_prescription_detail)
-    db.session.commit()
+    if medicine.quantity < 1:
+      flash(f"Medicine {medicine.name} is out of stock", "info")
+    else:
+      new_prescription_detail = PrescriptionDetails(
+        prescription_id = prescription.id,
+        medicine_id = medicine.id,
+        amount = medicine.price,
+      )
+      db.session.add(new_prescription_detail)
+      flash("Prescription saved successfully", "success")
+      db.session.commit()
 
 def calculate_prescription_total(prescription_id):
   prescription = Prescription.query.get(prescription_id)
@@ -645,6 +632,31 @@ def complete_appointment(appointment_id):
 
   return redirect(url_for("admin.home"))
 
+@admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
+@login_required
+@role_required(["Admin"])
+def patient_feedback(appointment_id):
+  try:
+    appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
+    if not appointment:
+      flash("Appointment not found", "danger")
+      return redirect(url_for("admin.home"))
+    
+    form = FeedbackForm()
+    if form.validate_on_submit():
+      new_feeback = Feedback(
+        status = form.feedback.data,
+        appointment_id = appointment.id
+      )
+      db.session.add(new_feeback)
+      db.session.commit()
+      flash("Feedback recorded successfully", "success")
+      return redirect(url_for("admin.appointment", appointment_id=appointment.unique_id))
+    
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+    return redirect(request.referrer)
+
 @admin.route("/pay/prescription/<int:prescription_id>")
 @login_required
 @role_required(["Admin", "Accountant"])
@@ -672,6 +684,11 @@ def prescription_payment(prescription_id):
 
 def record_transaction(prescription_id):
   prescription = Prescription.query.get(prescription_id)
+  prescription_details = PrescriptionDetails.query.filter_by(prescription_id=prescription.id).all()
+  for prescription_detail in prescription_details:
+    medicine = Medicine.query.filter_by(id=prescription_detail.medicine_id).first()
+    if medicine:
+      medicine.quantity = medicine.quantity - 1
   new_payment = Payment(
     amount = prescription.total,
     is_completed = True,
@@ -683,6 +700,7 @@ def record_transaction(prescription_id):
   db.session.commit()
 
 @admin.route("/export/transaction/<int:payment_id>")
+@login_required
 def export_transaction(payment_id):
   payment = Payment.query.filter_by(unique_id=payment_id).first()
   if not payment:
@@ -698,44 +716,61 @@ def export_transaction(payment_id):
 
   return redirect(url_for("admin.home"))
 
-# @admin.route('/api/analytics')
-# def get_analytics():
-#   month = request.args.get('month', 'all')
-#   year = request.args.get('year', get_local_time.year)
-  
-#   try:
-#     # Get most diagnosed diseases
-#     diseases_query = db.session.query(
-#       Diagnosis.diagnosed_disease.name,
-#       db.func.count(Diagnosis.id).label('count')
-#     )
-    
-#     if month != 'all':
-#       diseases_query = diseases_query.filter(
-#         db.extract('month', Diagnosis.created_at) == month,
-#         db.extract('year', Diagnosis.created_at) == year
-#       )
-    
-#     top_diseases = diseases_query.group_by(Diagnosis.diagnosed_disease.name).order_by(db.desc('count')).limit(5).all()
-    
-#     # Get most prescribed medications
-#     meds_query = db.session.query(
-#       Prescription.prescribed_medicine.name,
-#       db.func.count(Prescription.id).label('count')
-#     )
-    
-#     if month != 'all':
-#       meds_query = meds_query.filter(
-#         db.extract('month', Prescription.created_at) == month,
-#         db.extract('year', Prescription.created_at) == year
-#       )
-    
-#     top_medications = meds_query.group_by(Prescription.prescribed_medicine.name).order_by(db.desc('count')).limit(5).all()
-    
-#     return jsonify({
-#       'diseases': [{'name': d[0], 'count': d[1]} for d in top_diseases],
-#       'medications': [{'name': m[0], 'count': m[1]} for m in top_medications]
-#     })
-      
-#   except Exception as e:
-#     return jsonify({'error': str(e)}), 500
+@admin.route("/analytics", methods=["POST", "GET"])
+@login_required
+def analytics():
+  details = db.session.query(
+    DiagnosisDetails.id,
+    DiagnosisDetails.diagnosis_id,
+    DiagnosisDetails.disease_id
+  ).all()
+
+  month_selected = 0
+
+  if request.method == "POST":
+    month_selected = request.form.get("filter")
+    if int(month_selected) == 0:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).all()
+    else:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+
+  # Then process in Python to count and group
+  disease_counts = defaultdict(list)
+
+  for detail in details:
+    disease_counts[detail.disease_id].append({
+      'diagnosis_detail_id': detail.id,
+      'diagnosis_id': detail.diagnosis_id
+    })
+
+  # Convert to final structure
+  result = []
+  for disease_id, entries in disease_counts.items():
+    result.append({
+      'disease_id': disease_id,
+      'count': len(entries),
+      'diagnoses': entries
+    })
+
+  # Sort by count descending
+  result.sort(key=lambda x: x['count'], reverse=True)
+
+  context = {
+    "results": result,
+    "diseases": Disease.query.all(),
+    "medicines": Medicine.query.all(),
+    "all_diagnosis": Diagnosis.query.all(),
+    "diagnosis_details": DiagnosisDetails.query.all(),
+    "patients": Patients.query.all(),
+    "month_selected": int(month_selected)
+  }
+
+  return render_template("Main/analytics.html", **context)

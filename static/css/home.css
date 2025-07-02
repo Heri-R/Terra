@@ -52,6 +52,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  max-height: 22.3rem;
+  overflow-y: scroll;
+  padding-right: 0.4rem;
 }
 
 .table-menu {
@@ -64,9 +67,19 @@
   margin-top: 1rem;
 }
 
+.search-inputs {
+  margin-bottom: 1rem;
+  background-color: var(--white);
+}
+
+.search-inputs:focus {
+  outline: 1px solid var(--light-green);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  background-color: var(--white);
 }
 
 th,
@@ -88,8 +101,7 @@ td {
   font-size: 0.9375rem;
 }
 
-.patients-table-container,
-.medical-data-table {
+.patients-table-container {
   background: var(--white);
   border-radius: 12px;
   overflow: hidden;
@@ -264,16 +276,20 @@ td {
 
 .btn-pagination.active {
   background-color: var(--light-green);
-  color: white;
+  color: var(--white);
   border-color: var(--black-grey);
 }
 
-.diagnosis-box {
+.diagnosis-box,
+.prescription-box,
+.transaction-box {
   display: grid;
   gap: 1rem;
 }
 
-.diagnosis-container {
+.diagnosis-container,
+.transaction-container,
+.prescription-container {
   background: var(--white);
   border-radius: 12px;
   padding: 2rem;
@@ -548,11 +564,11 @@ input {
 }
 
 @media (max-width: 768px) {
-  table thead {
+  #patients-table thead {
     display: none;
   }
 
-  table tr {
+  #patients-table tr {
     display: none;
   }
 
@@ -565,25 +581,7 @@ input {
   }
 }
 
-@media (max-width: 1024px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 100;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    margin-left: 0;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
-
+@media (max-width: 1000px) {
   .header {
     flex-direction: column;
     align-items: flex-start;

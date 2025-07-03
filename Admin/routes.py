@@ -236,7 +236,7 @@ def add_patient():
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
-        address = form.address.data
+        address_id = form.address.data
       )
       db.session.add(patient)
       db.session.commit()

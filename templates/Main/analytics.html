@@ -88,9 +88,98 @@ Analytics
       </b>
     </p>
     {% endif %}
-    <div class="results-card">
+    <!-- <div class="results-card">
       <div class="card-header">
         <h2><i class="fas fa-diagnoses"></i> Diagnosis Statistics</h2>
+        <span class="badge">{{ results|length }} conditions found</span>
+      </div>
+
+      <div class="diagnosis-list">
+        {% if not results %}
+        <p class="else">No Data to show</p>
+        {% else %}
+        {% for result in results %}
+        <div class="diagnosis-item">
+          <div class="diagnosis-header">
+            <span class="rank">{{ loop.index }}</span>
+            <div class="diagnosis-info">
+              <h3>
+                {% for disease in diseases if disease.id == result.disease_id %}
+                {{ disease.name }}
+                {% endfor %}
+              </h3>
+              <div class="diagnosis-meta">
+                <span class="count-badge">{{ "{:,}".format(result.count) }} {{ 'diagnoses' if result.count > 1 else
+                  'diagnosis'
+                  }}</span>
+                <button class="toggle-details" data-target="details-{{ loop.index }}">
+                  <i class="fas fa-chevron-down"></i> View Cases
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="diagnosis-details" id="details-{{ loop.index }}">
+            {% for diagnosis in result.diagnoses %}
+            <div class="case-card">
+              <div class="case-header">
+                <h4>
+                  {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                  {% for patient in patients if patient.id == d.patient_id %}
+                  <a target="_blank" href="{{ url_for('admin.patient_profile', patient_id=patient.unique_id) }}"
+                    class="patient-link">
+                    <i class="fas fa-user"></i> {{ patient.first_name }} {{ patient.last_name }}
+                  </a>
+                  {% endfor %}
+                  {% endfor %}
+                </h4>
+                <span class="case-date">
+                  {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                  {{ d.date_created.strftime('%b %d, %Y') }}
+                  {% endfor %}
+                </span>
+              </div>
+
+              <div class="case-details">
+                <div class="detail-item">
+                  <span class="detail-label"><i class="fas fa-map-marker-alt"></i> Address</span>
+                  <span class="detail-value">
+                    {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                    {% for patient in patients if patient.id == d.patient_id %}
+                    {% if patient.address_id %}
+                    {{ patient.patient_address.region }}, {{ patient.patient_address.district }}
+                    {% else %}
+                    ---
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"><i class="fas fa-calendar-check"></i> Appointment</span>
+                  <span class="detail-value">
+                    {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                    <a target="_blank"
+                      href="{{ url_for('admin.appointment', appointment_id=d.appointment_diagnosis.unique_id) }}"
+                      id="appointment-link">
+                      #{{ d.appointment_diagnosis.unique_id }}
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% endfor %}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div> -->
+  <div class="results-card">
+      <div class="card-header">
+        <h2><i class="fas fa-diagnoses"></i> Prescription Statistics</h2>
         <span class="badge">{{ results|length }} conditions found</span>
       </div>
 

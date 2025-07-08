@@ -5,12 +5,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from datetime import datetime
 from io import BytesIO
-import os
 
-def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Receipts"):
-  # Create output directory if it doesn't exist
-  os.makedirs(output_path, exist_ok=True)
-  
+def generate_payment_pdf(patient_info, payment_info):
   # Generate filename
   timestamp = datetime.now().strftime("%Y-%m-%d")
   filename = f"payment-receipt-{patient_info['first_name']}_{patient_info['last_name']}-{timestamp}.pdf"
@@ -54,7 +50,7 @@ def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Rece
   
   # Clinic header
   elements.append(Paragraph("Terra Natural Herbs", styles['Title']))
-  elements.append(Paragraph("123 Medical Drive, City, State", styles['Normal']))
+  elements.append(Paragraph("P.O.BOX 222, Arusha, Arusha", styles['Normal']))
   elements.append(Paragraph("Phone: (123) 456-7890 | www.terranaturalherbs.tz", styles['Normal']))
   elements.append(Spacer(1, 30))
   

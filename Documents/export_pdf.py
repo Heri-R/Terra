@@ -51,7 +51,7 @@ def generate_payment_pdf(patient_info, payment_info):
   # Clinic header
   elements.append(Paragraph("Terra Natural Herbs", styles['Title']))
   elements.append(Paragraph("P.O.BOX 222, Arusha, Arusha", styles['Normal']))
-  elements.append(Paragraph("Phone: (123) 456-7890 | www.terranaturalherbs.tz", styles['Normal']))
+  elements.append(Paragraph("Phone: (123) 456-7890 | www.terranaturalherbs.co.tz", styles['Normal']))
   elements.append(Spacer(1, 30))
   
   # Receipt title

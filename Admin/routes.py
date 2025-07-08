@@ -790,32 +790,26 @@ def analytics():
     PrescriptionDetails.medicine_id
   ).all()
 
+  prescription_details = db.session.query(
+    PrescriptionDetails.id,
+    PrescriptionDetails.prescription_id,
+    PrescriptionDetails.medicine_id
+  ).all()
+
   month_selected = 0
 
   if request.method == "POST":
     month_selected = request.form.get("filter")
-    if int(month_selected) == 0:
-      details = db.session.query(
-        DiagnosisDetails.id,
-        DiagnosisDetails.diagnosis_id,
-        DiagnosisDetails.disease_id
-      ).all()
-      prescription_details = db.session.query(
-        PrescriptionDetails.id,
-        PrescriptionDetails.prescription_id,
-        PrescriptionDetails.medicine_id
-      ).all()
-    else:
-      details = db.session.query(
-        DiagnosisDetails.id,
-        DiagnosisDetails.diagnosis_id,
-        DiagnosisDetails.disease_id
-      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
-      prescription_details = db.session.query(
-        PrescriptionDetails.id,
-        PrescriptionDetails.prescription_id,
-        PrescriptionDetails.medicine_id
-      ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
+    details = db.session.query(
+      DiagnosisDetails.id,
+      DiagnosisDetails.diagnosis_id,
+      DiagnosisDetails.disease_id
+    ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+    prescription_details = db.session.query(
+      PrescriptionDetails.id,
+      PrescriptionDetails.prescription_id,
+      PrescriptionDetails.medicine_id
+    ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)
@@ -846,7 +840,7 @@ def analytics():
   # Convert to final structure
   prescription_result = []
   for medicine_id, entries in medicine_counts.items():
-    result.append({
+    prescription_result.append({
       'medicine_id': medicine_id,
       'count': len(entries),
       'prescriptions': entries
@@ -862,6 +856,7 @@ def analytics():
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
     "all_diagnosis": Diagnosis.query.all(),
+    "prescriptions": Prescription.query.all(),
     "diagnosis_details": DiagnosisDetails.query.all(),
     "patients": Patients.query.all(),
     "month_selected": int(month_selected)

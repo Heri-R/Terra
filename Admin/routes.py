@@ -13,7 +13,7 @@ from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisFo
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import defaultdict
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, desc
 
 admin = Blueprint("admin", __name__)
 region_districts = {
@@ -110,6 +110,7 @@ def render_map():
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def add_medicine():
   form = AddMedicineForm()
   if form.validate_on_submit():
@@ -138,6 +139,7 @@ def add_medicine():
 @admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin","Stock Controller"])
 def edit_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -169,6 +171,7 @@ def edit_medicine(medicine_id):
 @admin.route("/remove/medicine/<int:medicine_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -187,6 +190,7 @@ def remove_medicine(medicine_id):
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def add_disease():
   form = AddDiseaseForm()
   if form.validate_on_submit():
@@ -213,6 +217,7 @@ def add_disease():
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def edit_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -241,6 +246,7 @@ def edit_disease(disease_id):
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -259,6 +265,7 @@ def remove_disease(disease_id):
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin","Clerk"])
 def add_patient():
   form = AddPatientForm()
   form.district.choices = [('', 'Select District')]
@@ -309,6 +316,7 @@ def get_districts(region):
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin","Clerk"])
 def edit_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -357,6 +365,7 @@ def edit_patient(patient_id):
 @admin.route("/remove-patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -370,6 +379,7 @@ def remove_patient(patient_id):
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin","Clerk"])
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -814,26 +824,160 @@ def analytics():
     PrescriptionDetails.medicine_id
   ).all()
 
-  prescription_details = db.session.query(
-    PrescriptionDetails.id,
-    PrescriptionDetails.prescription_id,
-    PrescriptionDetails.medicine_id
-  ).all()
-
   month_selected = 0
+  region_selected = ""
 
   if request.method == "POST":
-    month_selected = request.form.get("filter")
-    details = db.session.query(
-      DiagnosisDetails.id,
-      DiagnosisDetails.diagnosis_id,
-      DiagnosisDetails.disease_id
-    ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
-    prescription_details = db.session.query(
-      PrescriptionDetails.id,
-      PrescriptionDetails.prescription_id,
-      PrescriptionDetails.medicine_id
-    ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
+    region_selected = request.form.get("region-filter")
+    month_selected = request.form.get("month-filter")
+
+    if not region_selected and not month_selected:
+      flash("Select at least one filter from the dropdown before submitting", "warning")
+      return redirect(url_for("admin.analytics"))
+
+    if not month_selected:
+      month_selected = 0
+
+    if region_selected:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id,
+        Disease.name,
+        func.count(DiagnosisDetails.disease_id).label('count')
+        ).join(
+            DiagnosisDetails,
+            DiagnosisDetails.disease_id == Disease.id
+        ).join(
+            Diagnosis,
+            Diagnosis.id == DiagnosisDetails.diagnosis_id
+        ).join(
+            Appointment,
+            Appointment.id == Diagnosis.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected
+        ).group_by(
+            DiagnosisDetails.id,
+            DiagnosisDetails.disease_id,
+            DiagnosisDetails.diagnosis_id,
+            Disease.name,
+        ).order_by(
+            desc('count')
+        ).all()
+
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id,
+        Medicine.name,
+        func.count(PrescriptionDetails.medicine_id).label('count')
+        ).join(
+            PrescriptionDetails,
+            PrescriptionDetails.medicine_id == Medicine.id
+        ).join(
+            Prescription,
+            Prescription.id == PrescriptionDetails.prescription_id
+        ).join(
+            Appointment,
+            Appointment.id == Prescription.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected
+        ).group_by(
+            PrescriptionDetails.id,
+            PrescriptionDetails.medicine_id,
+            PrescriptionDetails.prescription_id,
+            Medicine.name,
+        ).order_by(
+            desc('count')
+        ).all()
+
+    if region_selected and month_selected and month_selected != 0:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id,
+        Disease.name,
+        func.count(DiagnosisDetails.disease_id).label('count')
+        ).join(
+            DiagnosisDetails,
+            DiagnosisDetails.disease_id == Disease.id
+        ).join(
+            Diagnosis,
+            Diagnosis.id == DiagnosisDetails.diagnosis_id
+        ).join(
+            Appointment,
+            Appointment.id == Diagnosis.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected
+        ).group_by(
+            DiagnosisDetails.id,
+            DiagnosisDetails.disease_id,
+            DiagnosisDetails.diagnosis_id,
+            Disease.name,
+        ).order_by(
+            desc('count')
+        ).all()
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id,
+        Medicine.name,
+        func.count(PrescriptionDetails.medicine_id).label('count')
+        ).join(
+            PrescriptionDetails,
+            PrescriptionDetails.medicine_id == Medicine.id
+        ).join(
+            Prescription,
+            Prescription.id == PrescriptionDetails.prescription_id
+        ).join(
+            Appointment,
+            Appointment.id == Prescription.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected
+        ).group_by(
+            PrescriptionDetails.id,
+            PrescriptionDetails.medicine_id,
+            PrescriptionDetails.prescription_id,
+            Medicine.name,
+        ).order_by(
+            desc('count')
+        ).all()
+
+    if month_selected and month_selected != 0 and not region_selected:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id
+      ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)
@@ -883,7 +1027,10 @@ def analytics():
     "prescriptions": Prescription.query.all(),
     "diagnosis_details": DiagnosisDetails.query.all(),
     "patients": Patients.query.all(),
-    "month_selected": int(month_selected)
+    "month_selected": int(month_selected),
+    "regions": ["Arusha","Dar es Salaam","Dodoma","Geita","Iringa","Kagera","Katavi","Kigoma","Kilimanjaro","Lindi","Manyara","Mara","Mbeya","Mororgoro","Mtwara","Mwanza","Njombe","Pwani","Rukwa","Ruvuma","Shinyanga","Simiyu","Singida","Songwe","Tabora","Tanga","Zanzibar"
+    ],
+    "region_selected": region_selected
   }
 
   return render_template("Main/analytics.html", **context)

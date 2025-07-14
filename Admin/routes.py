@@ -43,7 +43,7 @@ region_districts = {
   "Songwe": ["Ileje", "Mbozi", "Momba", "Songwe"],
   "Tabora": ["Igunga", "Kaliua", "Nzega", "Sikonge", "Tabora", "Uyu"],
   "Tanga": ["Handeni", "Kilindi", "Korogwe", "Lushoto", "Mkinga", "Muheza", "Pangani", "Tanga"],
-  "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West"]
+  "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West", "Pemba North", "Pemba South"]
 }
 
 @admin.route("/")

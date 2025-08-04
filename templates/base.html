@@ -19,7 +19,7 @@
   <div class="content-box">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <a href="{{ url_for('admin.home') }}">
+        <a href="{{ url_for('admin.select_branch') }}">
           <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Clinic Logo">
         </a>
         <span onclick="closeSideBar()" id="close-sidebar">&Cross;</span>
@@ -28,10 +28,22 @@
         {% block nav %} {% endblock %}
       </nav>
       <div class="sidebar-footer">
+        {% if current_user.is_authenticated %}
+        {% if clinic and current_user.staff_role.name == "Admin" %}
+        <a id="branch-link" href="{{ url_for('admin.select_branch') }}">
+          <span>{{ clinic.name }}</span>
+          <i class="fas fa-chevron-right"></i>
+        </a>
+        {% elif current_user.staff_role.name != "Admin" %}
+        <div id="branch-link">
+          <span>{{ current_user.clinic_staff.name }}</span>
+        </div>
+        {% endif %}
+        {% endif %}
         <div class="user-profile">
           {% if current_user.is_authenticated %}
           <div class="user-info">
-            <div class="user-info-box">
+            <div class="user-info-box nav-item" data-tab="profile">
               <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
               <p>{{ current_user.staff_role.name }}</p>
             </div>
@@ -39,8 +51,6 @@
               <i class="fas fa-right-from-bracket"></i>
             </a>
           </div>
-          {% else %}
-          <a href="{{ url_for('auth.signin') }}">Sign In</a>
           {% endif %}
         </div>
       </div>

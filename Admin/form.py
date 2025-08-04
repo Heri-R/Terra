@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, TextAreaField
-from wtforms.validators import Length, DataRequired, Optional, NumberRange
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField
+from wtforms.validators import Length, DataRequired, Optional, NumberRange, EqualTo
+from Models.users import Staff
 
 region_districts = {
   "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
@@ -90,3 +91,14 @@ class PrescriptionForm(FlaskForm):
 
 class FeedbackForm(FlaskForm):
   feedback = SelectField(label="Patient Feedback", choices=[("", "Select an option"), ("Recovered", "Recovered"), ("Not Recovered", "Not Recovered")], validators=[DataRequired(message="Feedback field is required")])
+
+class AddClinicForm(FlaskForm):
+  name = StringField('Clinic Name', validators=[DataRequired(message="Clinic Name required"), Length(max=150)])
+  branch_type = SelectField(label="Branch Type", choices=[("","Select Branch Type"),("Headquarters","Headquarters"), ("Other","Other")], validators=[DataRequired(message="Branch Type required")])
+  region = StringField('Region', validators=[DataRequired(message="Region field required")])
+  district = StringField('District', validators=[DataRequired(message="District field required")])
+
+
+class UpdatedPasswordForm(FlaskForm):
+  new_password = PasswordField("New Password", validators=[DataRequired(message="New password field is required")])
+  confirm_password = PasswordField("Confirm Password", validators=[EqualTo("new_password", message="Passwords do not match"), DataRequired(message="Confirm password field is required")])

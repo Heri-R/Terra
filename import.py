@@ -60,19 +60,6 @@ def add_medicine():
 
 def add_admin():
   new_staff = Staff(
-    first_name = "Kevin",
-    last_name = "Maina",
-    email = "test@gmail.com",
-    phone = "0787654320",
-    role_id = Role.query.filter_by(name="Admin").first().id,
-    password = bcrypt.generate_password_hash("111111").decode("utf-8"),
-  )
-  db.session.add(new_staff)
-  db.session.commit()
-  print(f"New Admin addedd")
-
-def add_admin():
-  new_staff = Staff(
     first_name = "Heri",
     last_name = "Rama",
     email = "hrama@gmail.com",

@@ -9,10 +9,10 @@ class Config:
   SESSION_PERMANENT = False
   SESSION_TYPE = "filesystem"
   SECRET_KEY = os.environ.get("SECRET_KEY")
-  CACHE_TYPE = "RedisCache"
-  CACHE_REDIS_PORT = 19509
+  CACHE_TYPE = "SimpleCache"
+  # CACHE_REDIS_PORT = 19509
   CACHE_DEFAULT_TIMEOUT = 300
-  CELERY = {
-    "broker_url": "redis-cli -u redis://default:112NFxZ0FIXEzcnKZGTYqCPWrMnHLNc2@redis-19509.c270.us-east-1-3.ec2.redns.redis-cloud.com:19509",
-    "result_backend": "redis-cli -u redis://default:112NFxZ0FIXEzcnKZGTYqCPWrMnHLNc2@redis-19509.c270.us-east-1-3.ec2.redns.redis-cloud.com:19509",
-  }
+  # CELERY = {
+  #   "broker_url": "redis-cli -u redis://default:112NFxZ0FIXEzcnKZGTYqCPWrMnHLNc2@redis-19509.c270.us-east-1-3.ec2.redns.redis-cloud.com:19509",
+  #   "result_backend": "redis-cli -u redis://default:112NFxZ0FIXEzcnKZGTYqCPWrMnHLNc2@redis-19509.c270.us-east-1-3.ec2.redns.redis-cloud.com:19509",
+  # }

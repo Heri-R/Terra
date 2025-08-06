@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField, BooleanField
 from wtforms.validators import Length, DataRequired, Optional, NumberRange, EqualTo
 from Models.users import Staff
 
@@ -41,7 +41,6 @@ class AddPatientForm(FlaskForm):
   ], validators=[DataRequired(message="Gender field required")])
   phone_number_1 = StringField('Primary Phone', validators=[DataRequired(message="Phone Number required"), Length(max=20)])
   phone_number_2 = StringField('Secondary Phone', validators=[Optional(), Length(max=20)])
-  branch = SelectField(label="Registered Branch", choices=[("","Select Branch"),("Arusha","Arusha"), ("Dodoma","Dodoma"), ("Dar es Salaam","Dar es Salaam")], validators=[DataRequired(message="Branch required")])
   region = SelectField('Region', choices=[], validators=[Optional()])
   district = SelectField('District', choices=[], validators=[Optional()])
   location = StringField('Location', validators=[Optional(), Length(max=50)])
@@ -73,6 +72,7 @@ class AddMedicineForm(FlaskForm):
   name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
   price = IntegerField('Medicine Price', validators=[DataRequired(message="Medicine price field required"), NumberRange(min=1, message="Minimum price is Tsh 1")])
   quantity = IntegerField('Medicine Quantity', validators=[Optional(), NumberRange(min=1, message="Minimum amount is 1")])
+  # is_global = BooleanField("Add to all branches", default=True)
 
 class AddDiseaseForm(FlaskForm):
   name = StringField('Disease Name', validators=[DataRequired(message="Disease name field required"), Length(max=200)])

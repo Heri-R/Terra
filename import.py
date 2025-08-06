@@ -1,19 +1,19 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
-import csv
 from Models.base_model import db
-from Models.users import Patients, PatientAddress
+from Models.users import Patients
 from Models.diseases import Disease
-from Models.medicine import Medicine
-from Models.users import Staff
+from Models.medicine import Medicine, Inventory
+from Models.users import Staff, Role
 from config import Config
+import csv
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 bcrypt = Bcrypt()
 
-def add_clients():
+def add_patients():
   user_file = open("clients.csv")
   read_files = csv.reader(user_file)
 
@@ -42,6 +42,8 @@ def add_diseases():
       )
       db.session.add(new_disease)
       db.session.commit()
+    
+  print("Diseases Added")
 
 def add_medicine():
   user_file = open("Price list.csv")
@@ -51,10 +53,23 @@ def add_medicine():
     new_medicine = Medicine(
       name = name,
       price = price,
-      quantity = 100,
     )
     db.session.add(new_medicine)
     db.session.commit()
+  print("Medicines Added")
+
+def add_admin():
+  new_staff = Staff(
+    first_name = "Kevin",
+    last_name = "Maina",
+    email = "test@gmail.com",
+    phone = "0787654320",
+    role_id = Role.query.filter_by(name="Admin").first().id,
+    password = bcrypt.generate_password_hash("111111").decode("utf-8"),
+  )
+  db.session.add(new_staff)
+  db.session.commit()
+  print(f"New Admin addedd")
 
 def add_admin():
   new_staff = Staff(
@@ -70,7 +85,7 @@ def add_admin():
 
 if __name__ == "__main__":
   with app.app_context():
-    add_clients()
-    # add_diseases()
-    # add_medicine()
-    # add_admin()
+    # add_patients()
+    add_diseases()
+    add_medicine()
+    add_admin()

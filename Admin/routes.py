@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
+from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
+from flask_caching import Cache, CachedResponse
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Role
 from Models.users import Patients, PatientAddress, Staff
-from Models.medicine import Medicine
+from Models.medicine import Medicine, Inventory
 from Models.diseases import Disease
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
@@ -14,12 +15,27 @@ from Models.clinic import Clinic, ClinicType
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm, UpdatedPasswordForm
 from Auth.form import StaffRegistrationForm
 from Documents.export_pdf import generate_payment_pdf
-from decorator import role_required
+from decorator import role_required, branch_required
 from collections import defaultdict
 from sqlalchemy.sql import func, desc
 from slugify import slugify
+from celery import Celery, Task
+from .tasks import populate_inventory
+
+def celery_init_app(app: Flask) -> Celery:
+  class FlaskTask(Task):
+    def __call__(self, *args: object, **kwargs: object) -> object:
+      with app.app_context():
+        return self.run(*args, **kwargs)
+
+  celery_app = Celery(app.name, task_cls=FlaskTask)
+  celery_app.config_from_object(app.config["CELERY"])
+  celery_app.set_default()
+  app.extensions["celery"] = celery_app
+  return celery_app
 
 admin = Blueprint("admin", __name__)
+cache = Cache()
 region_districts = {
   "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
   "Dar es Salaam": ["Ilala", "Kinondoni", "Temeke", "Kigamboni", "Ubungo"],
@@ -58,7 +74,6 @@ region_districts = {
 @role_required(["Admin"])
 def select_branch():
   form = AddClinicForm()
-
   if form.validate_on_submit():
     try:
       new_clinic = Clinic(
@@ -70,6 +85,7 @@ def select_branch():
       )
       db.session.add(new_clinic)
       db.session.commit()
+      populate_inventory.delay(new_clinic.unique_id)
       flash("Branch added successfully", "success")
       return redirect(url_for("admin.select_branch"))
     except Exception as e:
@@ -86,28 +102,54 @@ def select_branch():
     "clinics": Clinic.query.all()
   }
 
-  return render_template("Main/select-branch.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/select-branch.html", **context)),
+    timeout=300
+  )
 
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def load_clinic(branch_name):
-  clinic = Clinic.query.filter_by(alias=branch_name).first()
-  if not clinic:
-    flash("Branch not found", "danger")
-    return redirect(url_for('admin.select_branch'))  
-  session["clinic_id"] = clinic.id
-  return redirect(url_for('admin.dashboard'))
+  cache.clear()
+  try:
+    clinic = Clinic.query.filter_by(alias=branch_name).first()
+    if not clinic:
+      flash("Branch not found", "danger")
+      return redirect(url_for('admin.select_branch'))  
+    session["clinic_id"] = clinic.id
+    return redirect(url_for('admin.dashboard'))
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+    return redirect(url_for('admin.select_branch'))
+
+@admin.route("/remove/branch/<string:branch_name>")
+@login_required
+@fresh_login_required
+@branch_required()
+@role_required(["Admin"])
+def remove_clinic(branch_name):
+  cache.clear()
+  try:
+    clinic = Clinic.query.filter_by(alias=branch_name).first()
+    if not clinic:
+      flash("Branch not found", "danger")
+      return redirect(url_for('admin.select_branch'))
+    db.session.delete(clinic)
+    db.session.commit()
+    flash("Branch removed successfully", "success")
+    return redirect(url_for('admin.dashboard'))
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+    return redirect(url_for('admin.select_branch'))
 
 @admin.route("/dashboard")
 @login_required
 @fresh_login_required
+@branch_required()
 def dashboard():
-  if not "clinic_id" in session:
-    flash("Select a clinic", "warning")
-    return redirect(url_for('admin.select_branch'))
-  
   form = StaffRegistrationForm()
   form.branch.choices = [(clinic.unique_id, clinic.name) for clinic in Clinic.query.all()]
   form.role.choices = [(role.unique_id, role.name) for role in Role.query.all()]
@@ -120,6 +162,7 @@ def dashboard():
     "patients": Patients.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "staffs": Staff.query.all(),
     "payments" : Payment.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "inventories" : Inventory.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "medicines" : Medicine.query.all(),
     "diseases" : Disease.query.all(),
     "all_diagnosis" : Diagnosis.query.filter_by(clinic_id=session["clinic_id"]).all(),
@@ -133,11 +176,16 @@ def dashboard():
     "update_password_form": UpdatedPasswordForm()
   }
   
-  return render_template("Main/home.html", **context)
+  return CachedResponse (
+    response = make_response(render_template("Main/home.html", **context)),
+    timeout=300,
+  )
 
 @admin.route("/find-patient/<string:search_text>")
 @login_required
 @fresh_login_required
+@branch_required()
+@cache.cached(timeout=300)
 def patient_search(search_text):
   patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).all()
   patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).count()
@@ -157,18 +205,27 @@ def patient_search(search_text):
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def add_medicine():
+  cache.clear()
   form = AddMedicineForm()
   if form.validate_on_submit():
     try:
       new_medicine = Medicine(
         name = form.name.data,
         price = form.price.data,
-        quantity = form.quantity.data,
       )
       db.session.add(new_medicine)
       db.session.commit()
+      if not form.is_global.data:
+        new_inventory = Inventory(
+          quantity = form.quantity.data,
+          medicine_id = new_medicine.id,
+          clinic_id = session["clinic_id"]
+        )
+        db.session.add(new_inventory)
+        db.session.commit()
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
         
@@ -184,30 +241,33 @@ def add_medicine():
 
   return render_template("Main/add-medicine.html", **context)
 
-@admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
+@admin.route("/edit/medicine/<int:inventory_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Stock Controller"])
-def edit_medicine(medicine_id):
-  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-  if not medicine:
+def edit_medicine(inventory_id):
+  cache.clear()
+  inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
+  if not inventory:
     flash("Medicine not found", category="danger")
     return redirect(url_for("admin.dashboard"))
   
-  form = AddMedicineForm(obj=medicine)
+  form = AddMedicineForm(obj=inventory.inventory)
 
   if form.validate_on_submit():
     try:
-      medicine.name = form.name.data
-      medicine.price = form.price.data
+      inventory.inventory.name = form.name.data
+      inventory.inventory.price = form.price.data
       if form.quantity.data:
-        medicine.quantity = medicine.quantity + form.quantity.data
+        inventory.quantity = inventory.quantity + form.quantity.data
       db.session.commit()
       flash("Medicine updated successfully", "success")
-      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+      return redirect(url_for("admin.dashboard"))
+    
     except Exception as e:
       flash(f"Error: {str(e)}", "danger")
-      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+      return redirect(url_for("admin.dashboard"))
 
   context = {
     "form": form,
@@ -217,18 +277,19 @@ def edit_medicine(medicine_id):
 
   return render_template("Main/add-medicine.html", **context)
 
-@admin.route("/remove/medicine/<int:medicine_id>")
+@admin.route("/remove/medicine/<int:inventory_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
-def remove_medicine(medicine_id):
-  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-  if not medicine:
-    flash("Medicine not found", category="danger")
-    return redirect(url_for("admin.dashboard"))
-  
+def remove_medicine(inventory_id):
+  cache.clear()
+  inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
+  if not inventory:
+    flash("Inventory not found", category="danger")
+    return redirect(url_for("admin.dashboard"))  
   try:
-    db.session.delete(medicine)
+    db.session.delete(inventory)
     db.session.commit()
     flash("Medicine removed successfully", "success")
   except Exception as e:
@@ -239,8 +300,10 @@ def remove_medicine(medicine_id):
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def add_disease():
+  cache.clear()
   form = AddDiseaseForm()
   if form.validate_on_submit():
     try:
@@ -267,8 +330,10 @@ def add_disease():
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def edit_disease(disease_id):
+  cache.clear()
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
     flash("Disease not found", category="danger")
@@ -297,8 +362,10 @@ def edit_disease(disease_id):
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def remove_disease(disease_id):
+  cache.clear()
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
     flash("Disease not found", category="danger")
@@ -316,8 +383,10 @@ def remove_disease(disease_id):
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Clerk"])
 def add_patient():
+  cache.clear()
   form = AddPatientForm()
   form.district.choices = [('', 'Select District')]
   if 'region' in request.form:
@@ -332,7 +401,6 @@ def add_patient():
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
-        branch = form.branch.data,
         clinic_id = session["clinic_id"]
       )
       db.session.add(new_patient)
@@ -365,15 +433,19 @@ def add_patient():
 @admin.route("/get-districts/<region>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Clerk"])
+@cache.cached(timeout=300)
 def get_districts(region):
   return jsonify(districts=region_districts.get(region, []))
 
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Clerk"])
 def edit_patient(patient_id):
+  cache.clear()
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
@@ -422,8 +494,10 @@ def edit_patient(patient_id):
 @admin.route("/remove-patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def remove_patient(patient_id):
+  cache.clear()
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
@@ -436,8 +510,10 @@ def remove_patient(patient_id):
 @admin.route("/remove-staff/<int:staff_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def remove_staff(staff_id):
+  cache.clear()
   staff = Staff.query.filter_by(unique_id = staff_id).first()
   if not staff:
     flash("Staff not found", "danger")
@@ -450,7 +526,9 @@ def remove_staff(staff_id):
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Clerk"])
+@cache.cached(timeout=300)
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -473,13 +551,18 @@ def patient_profile(patient_id):
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template('Main/patient-profile.html', **context)
+  return CachedResponse(
+    response = make_response(render_template('Main/patient-profile.html', **context)),
+    timeout=300
+  ) 
 
 @admin.route("/create-appointment/<int:patient_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech", "Clerk"])
 def create_appointment(patient_id):
+  cache.clear()
   patient = Patients.query.filter_by(unique_id=patient_id).first()
   if not patient:
     flash("Failed to create appointment, patient not found", "danger")
@@ -501,7 +584,9 @@ def create_appointment(patient_id):
 @admin.route("/appointment/<int:appointment_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech", "Clerk"])
+@cache.cached(timeout=300)
 def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -540,6 +625,7 @@ def appointment(appointment_id):
     "prescription_details": prescription_details,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
+    "inventories": Inventory.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "feedback": Feedback.query.filter_by(appointment_id=appointment.id).first(),
     "form": FeedbackForm(),
     "clinic": Clinic.query.get(session["clinic_id"])
@@ -550,8 +636,10 @@ def appointment(appointment_id):
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Clerk"])
 def add_lab_analysis(appointment_id):
+  cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
@@ -595,8 +683,10 @@ def create_lab_analysis_details(lab_analysis_id, form):
 @admin.route("/remove-lab-test/<int:lab_analysis_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech"])
 def remove_lab_analysis(lab_analysis_id):
+  cache.clear()
   lab_analysis = LabAnalysisDetails.query.filter_by(unique_id=lab_analysis_id).first()
   if not lab_analysis:
     flash("Lab test not found", "danger")
@@ -613,8 +703,10 @@ def remove_lab_analysis(lab_analysis_id):
 @admin.route("/approve/lab-analysis/<int:lab_analysis_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech"])
 def approve_lab_analysis(lab_analysis_id):
+  cache.clear()
   lab_analysis = LabAnalysis.query.filter_by(unique_id=lab_analysis_id).first()
   if not lab_analysis:
     flash("Lab analysis not found", "danger")
@@ -638,8 +730,10 @@ def approve_lab_analysis(lab_analysis_id):
 @admin.route("/diagnose/patient/<int:appointment_id>", methods=["POST"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech"])
 def add_diagnosis(appointment_id):
+  cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
@@ -699,8 +793,10 @@ def remove_diagnosis_disease(diagnosis_id):
 @admin.route("/prescribe/patient/<int:appointment_id>", methods=["POST"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech"])
 def add_prescription(appointment_id):
+  cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
@@ -744,7 +840,8 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
   prescription = Prescription.query.get(prescription_id)
   for medicine_id in prescribed_medicine_ids:
     medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-    if medicine.quantity < 1:
+    inventory = Inventory.query.filter_by(medicine_id=medicine.id, clinic_id=session["clinic_id"]).first()
+    if inventory.quantity < 1:
       flash(f"Medicine {medicine.name} is out of stock", "info")
     else:
       new_prescription_detail = PrescriptionDetails(
@@ -773,8 +870,10 @@ def remove_prescribed_medicine(prescription_id):
 @admin.route("/complete/appointment/<int:appointment_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Lab Tech"])
 def complete_appointment(appointment_id):
+  cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
@@ -808,8 +907,10 @@ def complete_appointment(appointment_id):
 @admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin"])
 def patient_feedback(appointment_id):
+  cache.clear()
   try:
     appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
     if not appointment:
@@ -834,8 +935,10 @@ def patient_feedback(appointment_id):
 @admin.route("/pay/prescription/<int:prescription_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 @role_required(["Admin", "Accountant"])
 def prescription_payment(prescription_id):
+  cache.clear()
   prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
   if not prescription:
     flash("Prescription not found", "danger")
@@ -861,9 +964,10 @@ def record_transaction(prescription_id):
   prescription = Prescription.query.get(prescription_id)
   prescription_details = PrescriptionDetails.query.filter_by(prescription_id=prescription.id).all()
   for prescription_detail in prescription_details:
-    medicine = Medicine.query.filter_by(id=prescription_detail.medicine_id).first()
-    if medicine:
-      medicine.quantity = medicine.quantity - 1
+    inventory = Inventory.query.filter_by(medicine_id=prescription_detail.medicine_id, clinic_id=prescription_detail.clinic_id).first()
+    if inventory:
+      inventory.quantity = inventory.quantity - 1
+      db.session.commit()
   new_payment = Payment(
     amount = prescription.total,
     is_completed = True,
@@ -878,7 +982,9 @@ def record_transaction(prescription_id):
 @admin.route("/export/transaction/<int:payment_id>")
 @login_required
 @fresh_login_required
+@branch_required()
 def export_transaction(payment_id):
+  cache.clear()
   payment = Payment.query.filter_by(unique_id=payment_id).first()
   if not payment:
     flash("Payment not found", "danger")
@@ -895,6 +1001,7 @@ def export_transaction(payment_id):
 @admin.route("/analytics", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@branch_required()
 def analytics():
   details = db.session.query(
     DiagnosisDetails.id,
@@ -911,6 +1018,7 @@ def analytics():
   region_selected = ""
 
   if request.method == "POST":
+    cache.clear()
     region_selected = request.form.get("region-filter")
     month_selected = request.form.get("month-filter")
 
@@ -1055,7 +1163,7 @@ def analytics():
         DiagnosisDetails.id,
         DiagnosisDetails.diagnosis_id,
         DiagnosisDetails.disease_id
-      ).filter(DiagnosisDetails.month_created == int(month_selected), Diagnosis.clinic_id == session["clinic_id"]).all()
+      ).filter(DiagnosisDetails.month_created == int(month_selected), DiagnosisDetails.clinic_id == session["clinic_id"]).all()
       prescription_details = db.session.query(
         PrescriptionDetails.id,
         PrescriptionDetails.prescription_id,
@@ -1117,4 +1225,7 @@ def analytics():
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/analytics.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/analytics.html", **context)),
+    timeout=300
+  ) 

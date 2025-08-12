@@ -142,7 +142,6 @@ def load_clinic(branch_name):
 @admin.route("/remove/branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@branch_required()
 @role_required(["Admin"])
 def remove_clinic(branch_name):
   cache.clear()

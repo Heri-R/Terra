@@ -235,14 +235,14 @@ def add_medicine():
       )
       db.session.add(new_medicine)
       db.session.commit()
-      if not form.is_global.data:
-        new_inventory = Inventory(
-          quantity = form.quantity.data,
-          medicine_id = new_medicine.id,
-          clinic_id = session["clinic_id"]
-        )
-        db.session.add(new_inventory)
-        db.session.commit()
+      
+      new_inventory = Inventory(
+        quantity = form.quantity.data,
+        medicine_id = new_medicine.id,
+        clinic_id = session["clinic_id"]
+      )
+      db.session.add(new_inventory)
+      db.session.commit()
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
         

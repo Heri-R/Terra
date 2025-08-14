@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
 from flask_caching import Cache, CachedResponse
-
+from flask_redis import FlaskRedis
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Role
@@ -23,6 +23,7 @@ from slugify import slugify
 
 admin = Blueprint("admin", __name__)
 cache = Cache()
+redis_client = FlaskRedis()
 
 region_districts = {
   "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],

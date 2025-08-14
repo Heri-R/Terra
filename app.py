@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
-from Admin.routes import admin, cache
+from Admin.routes import admin, cache, redis_client
 from Auth.routes import auth
 
 def create_app():
@@ -15,6 +15,7 @@ def create_app():
   db.init_app(app)
   Migrate(app, db)
   cache.init_app(app)
+  redis_client.init_app(app)
 
   app.register_blueprint(errors)
   app.register_blueprint(admin)

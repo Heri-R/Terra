@@ -361,11 +361,11 @@ def edit_disease(disease_id):
     flash("Disease not found", category="danger")
     return redirect(url_for("admin.dashboard"))
   
-  form = AddMedicineForm(obj=disease)
+  form = AddDiseaseForm(obj=disease)
 
   if form.validate_on_submit():
     try:
-      form.populate_obj(disease)
+      disease.name = form.name.data
       db.session.commit()
       flash("Disease updated successfully", "success")
       return redirect(url_for("admin.edit_disease", disease_id=disease.unique_id))
@@ -375,7 +375,7 @@ def edit_disease(disease_id):
 
   context = {
     "form": form,
-    "title_message": "Edit",
+    "title_message": f"Edit Disease: {disease.name}",
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 

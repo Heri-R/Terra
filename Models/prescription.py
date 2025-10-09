@@ -17,6 +17,12 @@ class Prescription(BaseModel, db.Model):
 
   def __repr__(self):
     return f"{self.patient_id} - {self.total}"
+  
+  def to_dict(self):
+    return {
+      'prescription_details': self.prescription_details,
+      'note': self.note,
+    }
 
 class PrescriptionDetails(BaseModel, db.Model):
   __tablename__ = "prescription_details"
@@ -27,4 +33,4 @@ class PrescriptionDetails(BaseModel, db.Model):
   clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
   def __repr__(self):
-    return f"{self.prescription_id} - {self.medicine_id}, {self.amount}"
+    return f"{self.prescribed_medicine.name}"

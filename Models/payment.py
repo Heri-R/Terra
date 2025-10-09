@@ -8,6 +8,7 @@ class Payment(BaseModel, db.Model):
   is_canceled = db.Column(db.Boolean(), default=False)
   date_paid = db.Column(db.DateTime(), default=get_local_time())
   prescription_id = db.Column(db.Integer(), db.ForeignKey("prescription.id"))
+  diagnosis_id = db.Column(db.Integer(), db.ForeignKey("diagnosis.id"))
   patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
   clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 

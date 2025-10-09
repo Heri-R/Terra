@@ -17,7 +17,6 @@ def add_patients():
   user_file = open("clients.csv")
   read_files = csv.reader(user_file)
 
-
   for fname, lname, age, gender, phone1, phone2 in read_files:
     new_patient = Patients(
       first_name = fname,
@@ -26,7 +25,7 @@ def add_patients():
       phone_number_2 = phone2,
       age = age,
       gender = gender,
-      clinic_id = 1
+      clinic_id = 1,
     )
     db.session.add(new_patient)
     db.session.commit()
@@ -60,15 +59,16 @@ def add_medicine():
 
 def add_admin():
   new_staff = Staff(
-    first_name = "Heri",
-    last_name = "Rama",
-    email = "hrama@gmail.com",
-    phone = "0745896312",
-    password = bcrypt.generate_password_hash("123456").decode("utf-8"),
-    role_id = 1
+    first_name = "Kevin",
+    last_name = "Maina",
+    email = "test@gmail.com",
+    phone = "0787654320",
+    role_id = Role.query.filter_by(name="Admin").first().id,
+    password = bcrypt.generate_password_hash("111111").decode("utf-8"),
   )
   db.session.add(new_staff)
   db.session.commit()
+  print(f"New Admin addedd")
 
 if __name__ == "__main__":
   with app.app_context():

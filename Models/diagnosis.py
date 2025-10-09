@@ -10,9 +10,16 @@ class Diagnosis(BaseModel, db.Model):
   date_created = db.Column(db.DateTime(), default=get_local_time())
   date_closed = db.Column(db.DateTime())
   diagnosis_details = db.relationship("DiagnosisDetails", backref="diagnosis_info", lazy=True)
+  payment = db.relationship("Payment", backref="diagnosis_payment", lazy=True)
 
   def __repr__(self):
     return f"{self.patient_id}"
+  
+  def to_dict(self):
+    return {
+      'diagnosis_details': self.diagnosis_details,
+      'note': self.note,
+    }
 
 class DiagnosisDetails(BaseModel, db.Model):
   __tablename__ = "diagnosis_details"
@@ -22,4 +29,4 @@ class DiagnosisDetails(BaseModel, db.Model):
   clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
   def __repr__(self):
-    return f"{self.id}"
+    return f"{self.diagnosed_disease.name}"

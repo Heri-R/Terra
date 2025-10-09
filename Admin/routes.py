@@ -5,7 +5,7 @@ from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Role
 from Models.users import Patients, PatientAddress, Staff
-from Models.medicine import Medicine, Inventory
+from Models.medicine import Medicine, Inventory, InventoryHistory
 from Models.diseases import Disease
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
@@ -60,9 +60,12 @@ region_districts = {
 @admin.route("/branches")
 @login_required
 @fresh_login_required
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def clinic_branches():
   form = AddClinicForm()
+
+  form.owner_id.choices = [(staff.id, f"{staff.first_name} {staff.last_name}") for staff in Staff.query.filter_by(role_id=Role.query.filter_by(name="Admin").first().id).all()]
+  form.owner_id.choices.insert(0, ("", "-- Select an admin --"))
   
   context = {
     "form": form,
@@ -77,9 +80,12 @@ def clinic_branches():
 @admin.route("/select-branch", methods=["POST"])
 @login_required
 @fresh_login_required
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def add_branch():
   form = AddClinicForm()
+  form.owner_id.choices = [(staff.id, f"{staff.first_name} {staff.last_name}") for staff in Staff.query.filter_by(role_id=Role.query.filter_by(name="Admin").first().id).all()]
+  form.owner_id.choices.insert(0, ("", "-- Select an admin --"))
+
   if form.validate_on_submit():
     cache.clear()
     try:
@@ -88,7 +94,9 @@ def add_branch():
         alias = slugify(form.name.data),
         region = form.region.data,
         district = form.district.data,
-        clinic_type_id = ClinicType.query.filter_by(name=form.branch_type.data).first().id
+        clinic_type_id = ClinicType.query.filter_by(id=form.clinic_type_id.data).first().id,
+        owner_id = form.owner_id.data if form.owner_id.data else None,
+        date_created = get_local_time()
       )
       db.session.add(new_clinic)
       db.session.commit()
@@ -117,18 +125,59 @@ def populate_inventory(branch_id):
           new_inventory = Inventory(
             clinic_id = clinic.id,
             medicine_id = medicine.id,
-            quantity = 100
+            quantity = 0
           )
           db.session.add(new_inventory)
           db.session.commit()
+
+          #record_opening_stock(new_inventory.id, new_inventory.quantity, "Opening Stock", new_inventory.quantity)
+
   except Exception as e:
     db.session.rollback()
     print(f"{str(e)}")
 
+@admin.route("/edit-branch/<string:branch_name>", methods=["POST", "GET"])
+@login_required
+@fresh_login_required
+@role_required(["SuperAdmin", "Admin"])
+def edit_branch(branch_name):
+  branch = Clinic.query.filter_by(alias=branch_name).first()
+  if not branch:
+    flash("Clinic branch not found", "danger")
+    return redirect(url_for('admin.clinic_branches'))
+
+  form = AddClinicForm(obj=branch)
+  
+  form.owner_id.choices = [(staff.id, f"{staff.first_name} {staff.last_name}") for staff in Staff.query.filter_by(role_id=Role.query.filter_by(name="Admin").first().id).all()]
+  form.owner_id.choices.insert(0, ("", "-- Select an admin --"))
+
+  if form.validate_on_submit():
+    cache.clear()
+    try:
+      form.populate_obj(obj=branch)
+      if not form.owner_id.data:
+        branch.owner_id = None
+      db.session.commit()
+      flash("Branch updated successfully", "success")
+      return redirect(url_for("admin.clinic_branches"))
+    except Exception as e:
+      flash(f"{str(e)}", "danger")
+      return redirect(url_for("admin.clinic_branches"))
+
+  if form.errors != {}:
+    for err_msg in form.errors.values():
+      flash(f"{err_msg}", "danger")
+
+  context = {
+    "form": form
+  }
+
+  return render_template("Main/edit-branch.html", **context)
+
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def load_clinic(branch_name):
   cache.clear()
   try:
@@ -148,7 +197,7 @@ def load_clinic(branch_name):
 @admin.route("/close-branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def close_clinic(branch_name):
   cache.clear()
   try:
@@ -172,7 +221,7 @@ def close_clinic(branch_name):
 @admin.route("/reopen-branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def reopen_clinic(branch_name):
   cache.clear()
   try:
@@ -197,7 +246,7 @@ def reopen_clinic(branch_name):
 def dashboard():
   form = StaffRegistrationForm()
   form.branch.choices = [(clinic.unique_id, clinic.name) for clinic in Clinic.query.all()]
-  form.role.choices = [(role.unique_id, role.name) for role in Role.query.all()]
+  form.role.choices = [(role.unique_id, role.name) for role in Role.query.all() if role.name != "SuperAdmin"]
   
   diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).filter_by(clinic_id=session["clinic_id"]).limit(limit=5).all()]
 
@@ -251,7 +300,7 @@ def patient_search(search_text):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def add_medicine():
   cache.clear()
   form = AddMedicineForm()
@@ -263,6 +312,7 @@ def add_medicine():
       )
       db.session.add(new_medicine)
       db.session.commit()
+
       new_inventory = Inventory(
         quantity = form.quantity.data,
         medicine_id = new_medicine.id,
@@ -270,12 +320,16 @@ def add_medicine():
       )
       db.session.add(new_inventory)
       db.session.commit()
+
+      record_opening_stock(new_inventory.id, form.quantity.data, "Opening Stock", new_inventory.quantity)
+
       NotificationService.create_new_medicine_notification(
         new_medicine.id,
         new_medicine.name,
         new_inventory.quantity
       )
-      if new_inventory.quantity < 5:
+
+      if new_inventory.quantity < 10:
         NotificationService.create_low_inventory_notification(
           new_medicine.name,
           new_inventory.quantity
@@ -298,11 +352,25 @@ def add_medicine():
     timeout=600
   )
 
+def record_opening_stock(inventory_id, stock_number, stock_status, current_stock):
+  inventory_history = InventoryHistory(
+    inventory_id = inventory_id,
+    stock_added = stock_number,
+    date_updated = get_local_time(),
+    stock_status = stock_status
+  )
+  db.session.add(inventory_history)
+  if inventory_history.stock_status == "Sale":
+    inventory_history.stock_before = current_stock + 1
+  else:
+    inventory_history.stock_before = current_stock - stock_number
+  db.session.commit()
+
 @admin.route("/edit/medicine/<int:inventory_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Stock Controller"])
+@role_required(["SuperAdmin","Admin", "Stock Controller"])
 def edit_medicine(inventory_id):
   inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
   if not inventory:
@@ -318,8 +386,11 @@ def edit_medicine(inventory_id):
       inventory.inventory.price = form.price.data
       if form.quantity.data:
         inventory.quantity = inventory.quantity + form.quantity.data
+        record_opening_stock(inventory.id, form.quantity.data, "Refill", inventory.quantity)
       db.session.commit()
+
       flash("Medicine updated successfully", "success")
+
       if inventory.quantity < 5:
         NotificationService.create_low_inventory_notification(
           inventory.inventory.name,
@@ -342,11 +413,29 @@ def edit_medicine(inventory_id):
     timeout=600
   )
 
+@admin.route("/inventory/<int:inventory_id>/history")
+def inventory_history(inventory_id):
+  inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
+  if not inventory:
+    flash("Could not open medicine information", "danger")
+    return redirect(url_for('admin.dashboard'))
+  
+  context = {
+    "inventory": inventory,
+    "history": InventoryHistory.query.filter(InventoryHistory.inventory_id==inventory.id, InventoryHistory.stock_status != "Sale").all(),
+    "sale_history": InventoryHistory.query.filter_by(inventory_id=inventory.id, stock_status="Sale").all()
+  }
+
+  return CachedResponse(
+    response = make_response(render_template("Main/inventory-history.html", **context)),
+    timeout=600
+  )
+
 @admin.route("/remove/medicine/<int:inventory_id>")
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def remove_medicine(inventory_id):
   cache.clear()
   inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
@@ -354,10 +443,13 @@ def remove_medicine(inventory_id):
     flash("Inventory not found", category="danger")
     return redirect(url_for("admin.dashboard"))  
   try:
+    remove_inventory_history(inventory.id)
+
     NotificationService.create_remove_medicine_notification(
       inventory.id,
       f"{inventory.inventory.name}"
     )
+
     db.session.delete(inventory)
     db.session.commit()
     flash("Medicine removed successfully", "success")
@@ -366,11 +458,17 @@ def remove_medicine(inventory_id):
 
   return redirect(url_for('admin.dashboard'))
 
+def remove_inventory_history(inventory_id):
+  inventory_history = InventoryHistory.query.filter_by(inventory_id=inventory_id).all()
+  for history in inventory_history:
+    db.session.delete(history)
+  db.session.commit()
+
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def add_disease():
   cache.clear()
   form = AddDiseaseForm()
@@ -407,7 +505,7 @@ def add_disease():
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def edit_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -442,7 +540,7 @@ def edit_disease(disease_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def remove_disease(disease_id):
   cache.clear()
   disease = Disease.query.filter_by(unique_id=disease_id).first()
@@ -467,7 +565,7 @@ def remove_disease(disease_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 def add_patient():
   cache.clear()
   form = AddPatientForm()
@@ -524,7 +622,7 @@ def add_patient():
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 @cache.cached(timeout=600)
 def get_districts(region):
   return jsonify(districts=region_districts.get(region, []))
@@ -533,7 +631,7 @@ def get_districts(region):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 def edit_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -585,7 +683,7 @@ def edit_patient(patient_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def remove_patient(patient_id):
   cache.clear()
   patient = Patients.query.filter_by(unique_id = patient_id).first()
@@ -605,7 +703,7 @@ def remove_patient(patient_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["SuperAdmin", "Admin"])
 def remove_staff(staff_id):
   cache.clear()
   staff = Staff.query.filter_by(unique_id = staff_id).first()
@@ -626,7 +724,7 @@ def remove_staff(staff_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -658,7 +756,7 @@ def patient_profile(patient_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech", "Clerk"])
 def create_appointment(patient_id):
   cache.clear()
   patient = Patients.query.filter_by(unique_id=patient_id).first()
@@ -671,7 +769,8 @@ def create_appointment(patient_id):
   if not existing_appointment:
     new_appointment = Appointment(
       patient_id = patient.id,
-      clinic_id = session["clinic_id"]
+      clinic_id = session["clinic_id"],
+      date_created = get_local_time()
     )
     db.session.add(new_appointment)
     db.session.commit()
@@ -687,7 +786,7 @@ def create_appointment(patient_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech", "Clerk"])
 def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -741,7 +840,7 @@ def appointment(appointment_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 def add_lab_analysis(appointment_id):
   cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -761,7 +860,8 @@ def add_lab_analysis(appointment_id):
       new_lab_analysis = LabAnalysis(
         patient_id = appointment.patient_id,
         appointment_id = appointment.id,
-        clinic_id = session["clinic_id"]
+        clinic_id = session["clinic_id"],
+        date_created = get_local_time()
       )
       db.session.add(new_lab_analysis)
       db.session.flush()
@@ -794,7 +894,7 @@ def create_lab_analysis_details(lab_analysis_id, form):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech"])
 def remove_lab_analysis(lab_analysis_id):
   cache.clear()
   lab_analysis = LabAnalysisDetails.query.filter_by(unique_id=lab_analysis_id).first()
@@ -817,7 +917,7 @@ def remove_lab_analysis(lab_analysis_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech"])
 def approve_lab_analysis(lab_analysis_id):
   cache.clear()
   lab_analysis = LabAnalysis.query.filter_by(unique_id=lab_analysis_id).first()
@@ -848,7 +948,7 @@ def approve_lab_analysis(lab_analysis_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech"])
 def add_diagnosis(appointment_id):
   cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -871,7 +971,8 @@ def add_diagnosis(appointment_id):
         patient_id = patient.id,
         appointment_id = appointment.id,
         note = form.note.data,
-        clinic_id = session["clinic_id"]
+        clinic_id = session["clinic_id"],
+        date_created = get_local_time()
       )
       db.session.add(new_diagnosis)
       db.session.flush()
@@ -916,7 +1017,7 @@ def remove_diagnosis_disease(diagnosis_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech"])
 def add_prescription(appointment_id):
   cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -939,7 +1040,8 @@ def add_prescription(appointment_id):
         patient_id = patient.id,
         appointment_id = appointment.id,
         note = form.note.data,
-        clinic_id = session["clinic_id"]
+        clinic_id = session["clinic_id"],
+        date_created = get_local_time()
       )
       db.session.add(new_prescription)
       db.session.flush()
@@ -971,7 +1073,8 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
         prescription_id = prescription.id,
         medicine_id = medicine.id,
         amount = medicine.price,
-        clinic_id = session["clinic_id"]
+        clinic_id = session["clinic_id"],
+        month_created = int(get_local_time().strftime("%m"))
       )
       db.session.add(new_prescription_detail)
       db.session.commit()
@@ -998,7 +1101,7 @@ def remove_prescribed_medicine(prescription_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Lab Tech"])
+@role_required(["SuperAdmin", "Admin", "Lab Tech"])
 def complete_appointment(appointment_id):
   cache.clear()
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -1039,7 +1142,7 @@ def complete_appointment(appointment_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Clerk"])
+@role_required(["SuperAdmin", "Admin", "Clerk"])
 def patient_feedback(appointment_id):
   cache.clear()
   try:
@@ -1052,7 +1155,8 @@ def patient_feedback(appointment_id):
     if form.validate_on_submit():
       new_feeback = Feedback(
         status = form.feedback.data,
-        appointment_id = appointment.id
+        appointment_id = appointment.id,
+        date_recorded = get_local_time()
       )
       db.session.add(new_feeback)
       db.session.commit()
@@ -1067,7 +1171,7 @@ def patient_feedback(appointment_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin", "Accountant"])
+@role_required(["SuperAdmin", "Admin", "Accountant"])
 def prescription_payment(prescription_id):
   cache.clear()
   prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
@@ -1100,6 +1204,7 @@ def record_transaction(prescription_id, diagnosis_id):
     if inventory:
       inventory.quantity = inventory.quantity - 1
       db.session.commit()
+
   new_payment = Payment(
     amount = prescription.total,
     is_completed = True,
@@ -1111,12 +1216,16 @@ def record_transaction(prescription_id, diagnosis_id):
   )
   db.session.add(new_payment)
   db.session.commit()
+
+  record_opening_stock(inventory.id, 1, "Sale", inventory.quantity)
+
   NotificationService.create_payment_notification(
     new_payment.id,
     new_payment.amount,
     f"{new_payment.patient_payment.first_name} {new_payment.patient_payment.last_name}"
   )
-  if inventory.quantity < 5:
+
+  if inventory.quantity < 10:
     NotificationService.create_low_inventory_notification(
       inventory.inventory.name,
       inventory.quantity

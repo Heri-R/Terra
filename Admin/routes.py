@@ -369,7 +369,7 @@ def record_opening_stock(inventory_id, stock_number, stock_status, current_stock
     stock_status = stock_status
   )
   db.session.add(inventory_history)
-  if inventory_history.stock_status == "Sale":
+  if inventory_history.stock_status == "Sold":
     inventory_history.stock_before = current_stock + 1
   else:
     inventory_history.stock_before = current_stock - stock_number
@@ -432,7 +432,7 @@ def inventory_history(inventory_id):
   context = {
     "inventory": inventory,
     "history": InventoryHistory.query.filter(InventoryHistory.inventory_id==inventory.id, InventoryHistory.stock_status != "Sale").all(),
-    "sale_history": InventoryHistory.query.filter_by(inventory_id=inventory.id, stock_status="Sale").all(),
+    "sale_history": InventoryHistory.query.filter_by(inventory_id=inventory.id, stock_status="Sold").all(),
     "clinic": Clinic.query.get(session["clinic_id"]),
   }
 

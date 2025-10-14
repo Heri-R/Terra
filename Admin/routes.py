@@ -395,7 +395,7 @@ def edit_medicine(inventory_id):
       inventory.inventory.price = form.price.data
       if form.quantity.data:
         inventory.quantity = inventory.quantity + form.quantity.data
-        record_opening_stock(inventory.id, form.quantity.data, "Refill", inventory.quantity)
+        record_opening_stock(inventory.id, form.quantity.data, "Refilled", inventory.quantity)
       db.session.commit()
 
       flash("Medicine updated successfully", "success")
@@ -1233,7 +1233,7 @@ def record_transaction(prescription_id, diagnosis_id):
   db.session.add(new_payment)
   db.session.commit()
 
-  record_opening_stock(inventory.id, 1, "Sale", inventory.quantity)
+  record_opening_stock(inventory.id, 1, "Sold", inventory.quantity)
 
   NotificationService.create_payment_notification(
     new_payment.id,

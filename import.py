@@ -59,12 +59,12 @@ def add_medicine():
 
 def add_admin():
   new_staff = Staff(
-    first_name = "Kevin",
-    last_name = "Maina",
+    first_name = "Heri",
+    last_name = "Rama",
     email = "test@gmail.com",
     phone = "0787654320",
     role_id = Role.query.filter_by(name="SuperAdmin").first().id,
-    password = bcrypt.generate_password_hash("111111").decode("utf-8"),
+    password = bcrypt.generate_password_hash("L3tm3!n123").decode("utf-8"),
   )
   db.session.add(new_staff)
   db.session.commit()

@@ -90,7 +90,8 @@ Patient Appointment
                 <div class="action-header-box">
                   <h2 id="accordion-header">Lab Test #{{ lab_test.unique_id }}</h2>
                   {% if (current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech" or
-                  current_user.staff_role.name == "SuperAdmin" or current_user.staff_role.name == "Medical Consultant") and
+                  current_user.staff_role.name == "SuperAdmin" or current_user.staff_role.name == "Medical Consultant")
+                  and
                   lab_test.is_active and lab_test.lab_analysis_details %}
                   <a id="approvebtn"
                     href="{{ url_for('admin.approve_lab_analysis', lab_analysis_id=lab_test.unique_id) }}">Approve</a>

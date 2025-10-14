@@ -25,7 +25,7 @@ def create_tables():
 def add_roles():
   roles = ["SuperAdmin", "Admin", "Clerk", "Stock Controller", "Accountant", "Lab Tech", "Medical Consultant"]
   for role in roles:
-    if not Role.query.filter_by(name = role).first():
+    if not Role.query.filter_by(name=role).first():
       new_role = Role(
         name = role
       )
@@ -45,7 +45,7 @@ def add_branch_types():
 
 if __name__ == "__main__":
   with app.app_context():
-    #drop_tables()
-    #create_tables()
+    # drop_tables()
+    # create_tables()
     add_roles()
-    #add_branch_types()
+    # add_branch_types()

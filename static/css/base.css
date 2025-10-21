@@ -138,7 +138,7 @@ textarea:focus {
 
 .sidebar {
   background-color: var(--white);
-  min-width: 14rem;
+  width: 16rem;
   border-radius: var(--radius-s);
   min-height: 100%;
   max-height: 100svh;

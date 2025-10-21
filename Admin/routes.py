@@ -1129,6 +1129,12 @@ def complete_appointment(appointment_id):
     if not appointment.lab_analysis and not appointment.diagnosis and not appointment.prescription:
       flash("Appointment missing either an approved lab test or diagnosis or prescription", "warning")
       return redirect(request.referrer)
+    if appointment.prescription:
+      prescription = Prescription.query.filter_by(appointment_id=appointment.id, is_active=True).first()
+      if not prescription.prescription_details:
+        flash("Appointment missing a prescription (Medicine out of stock!)", "warning")
+        return redirect(request.referrer)
+
     appointment_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
     if appointment_lab_analysis:
       approve_lab_analysis.is_active = False

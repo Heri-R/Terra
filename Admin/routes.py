@@ -431,7 +431,7 @@ def inventory_history(inventory_id):
   
   context = {
     "inventory": inventory,
-    "history": InventoryHistory.query.filter(InventoryHistory.inventory_id==inventory.id, InventoryHistory.stock_status != "Sale").all(),
+    "history": InventoryHistory.query.filter(InventoryHistory.inventory_id==inventory.id, InventoryHistory.stock_status != "Sold").all(),
     "sale_history": InventoryHistory.query.filter_by(inventory_id=inventory.id, stock_status="Sold").all(),
     "clinic": Clinic.query.get(session["clinic_id"]),
   }

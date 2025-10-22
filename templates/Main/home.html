@@ -231,7 +231,7 @@ current_user.staff_role.name == "Accountant" %}
     <div class="tab active" data-tab="today">Recent Appointments</div>
   </div>
   <div class="tab-content active" id="today">
-    <div class="appointments-table">
+    <div class="table-box table-boxs">
       <table>
         <thead>
           <tr>
@@ -346,7 +346,7 @@ current_user.staff_role.name == "Accountant" %}
       </button>
     </a>
   </div>
-  <div class="patients-table-container">
+  <div class="table-box">
     <table id="patients-table">
       <thead>
         <tr>
@@ -406,50 +406,6 @@ current_user.staff_role.name == "Accountant" %}
         {% endfor %}
       </tbody>
     </table>
-
-    <!-- Mobile view cards (hidden on desktop) -->
-    {% for patient in patients|sort(attribute=id, reverse=true) %}
-    <div class="mobile-patient-card">
-      <div class="mobile-card-header">
-        <div style="flex: 1;">
-          <div style="font-weight: 500;">{{ patient.first_name }} {{ patient.last_name }}</div>
-          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
-        </div>
-      </div>
-      <div class="mobile-card-body">
-        <div class="mobile-card-field">
-          <label>Phone</label>
-          <div>
-            {{ patient.phone_number_1 }}
-            {% if patient.phone_number_2 %}
-            /{{ patient.phone_number_2 }}
-            {% endif %}
-          </div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Age</label>
-          <div>{{ patient.age }}</div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Gender</label>
-          <div>
-            <span class="gender-badge gender-{{ patient.gender }}">
-              <i class="fas fa-venus"></i>
-              {{ patient.gender }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="mobile-card-actions">
-        <button class="btn-icon edit">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn-icon delete">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    {% endfor %}
   </div>
 </div>
 {% if current_user.staff_role.name == "SuperAdmin" or current_user.staff_role.name == "Admin" %}
@@ -466,7 +422,7 @@ current_user.staff_role.name == "Accountant" %}
       Add Staff
     </button>
   </div>
-  <div class="patients-table-container">
+  <div class="table-box">
     <table id="patients-table">
       <thead>
         <tr>
@@ -527,43 +483,6 @@ current_user.staff_role.name == "Accountant" %}
         {% endfor %}
       </tbody>
     </table>
-
-    <!-- Mobile view cards (hidden on desktop) -->
-    {% for staff in staffs|sort(attribute="first_name") %}
-    <div class="mobile-patient-card">
-      <div class="mobile-card-header">
-        <div style="flex: 1;">
-          <div style="font-weight: 500;">{{ staff.first_name }} {{ staff.last_name }}</div>
-          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ staff.unique_id }}</div>
-        </div>
-      </div>
-      <div class="mobile-card-body">
-        <div class="mobile-card-field">
-          <label>Phone Number</label>
-          <div>
-            {{ staff.phone }}
-          </div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Email Address</label>
-          <div>{{ staff.email }}</div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Branch</label>
-          <div>
-            {{ staff.clinic_staff.name }}
-          </div>
-        </div>
-      </div>
-      <div class="mobile-card-actions">
-        <a href="{{ url_for('admin.remove_staff', staff_id=staff.unique_id) }}">
-          <button class=" btn-icon delete">
-            <i class="fas fa-trash"></i>
-          </button>
-        </a>
-      </div>
-    </div>
-    {% endfor %}
   </div>
 </div>
 {% endif %}
@@ -600,92 +519,96 @@ current_user.staff_role.name == "Accountant" %}
       <input class="search-inputs" type="text" name="search-medicine" id="medicine-search"
         placeholder="Search for medicine">
     </div>
-    <table class="medical-table" id="medicine-table">
-      <thead>
-        <tr>
-          <th>Medicine ID</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for inventory in inventories|sort(attribute="id", reverse=true) %}
-        <tr id="medicine-name">
-          <th>MD - {{ inventory.inventory.unique_id }}</th>
-          <td>
-            <a style="max-width: max-content; color: var(--yellow); display: flex; align-items: center; gap:0.6rem;"
-              href="{{ url_for('admin.inventory_history', inventory_id=inventory.unique_id) }}">
-              {{ inventory.inventory.name|truncate(60) }}
-              <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            </a>
-          </td>
-          <td>{{ "Tsh {:,}".format(inventory.inventory.price) }}</td>
-          <td>{{ inventory.quantity }}</td>
-          <td>
-            {% if inventory.quantity > 10 %}
-            <span class="status-badge completed">Good Quantity</span>
-            {% else %}
-            <span class="status-badge cancelled">Low Quantity</span>
-            {% endif %}
-          </td>
-          <td>
-            <div class="table-actions-cell">
-              <a href="{{ url_for('admin.edit_medicine', inventory_id=inventory.unique_id) }}">
-                <button class="btn-icon edit">
-                  <i class="fas fa-edit"></i>
-                </button>
+    <div class="table-box">
+      <table class="medical-table" id="medicine-table">
+        <thead>
+          <tr>
+            <th>Medicine ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inventory in inventories|sort(attribute="id", reverse=true) %}
+          <tr id="medicine-name">
+            <th>MD - {{ inventory.inventory.unique_id }}</th>
+            <td>
+              <a style="max-width: max-content; color: var(--yellow); display: flex; align-items: center; gap:0.6rem;"
+                href="{{ url_for('admin.inventory_history', inventory_id=inventory.unique_id) }}">
+                {{ inventory.inventory.name|truncate(60) }}
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
-              <a href="{{ url_for('admin.remove_medicine', inventory_id=inventory.unique_id) }}">
-                <button class="btn-icon delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </td>
+            <td>{{ "Tsh {:,}".format(inventory.inventory.price) }}</td>
+            <td>{{ inventory.quantity }}</td>
+            <td>
+              {% if inventory.quantity > 10 %}
+              <span class="status-badge completed">Good Quantity</span>
+              {% else %}
+              <span class="status-badge cancelled">Low Quantity</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="table-actions-cell">
+                <a href="{{ url_for('admin.edit_medicine', inventory_id=inventory.unique_id) }}">
+                  <button class="btn-icon edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </a>
+                <a href="{{ url_for('admin.remove_medicine', inventory_id=inventory.unique_id) }}">
+                  <button class="btn-icon delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <div id="disease" class="medical-data-table">
     <div class="search-medical-data">
       <input class="search-inputs" type="text" name="search-disease" id="disease-search"
         placeholder="Search for disease">
     </div>
-    <table class="medical-table" id="disease-table">
-      <thead>
-        <tr>
-          <th>Disease ID</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for disease in diseases|sort(attribute="name") %}
-        <tr id="disease-name">
-          <th>DS - {{ disease.unique_id }}</th>
-          <td>{{ disease.name|truncate(60) }}</td>
-          <td>
-            <div class="table-actions-cell">
-              <a href="{{ url_for('admin.edit_disease', disease_id=disease.unique_id) }}">
-                <button class="btn-icon edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-              </a>
-              <a href="{{ url_for('admin.remove_disease', disease_id=disease.unique_id) }}">
-                <button class="btn-icon delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-box">
+      <table class="medical-table" id="disease-table">
+        <thead>
+          <tr>
+            <th>Disease ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for disease in diseases|sort(attribute="name") %}
+          <tr id="disease-name">
+            <th>DS - {{ disease.unique_id }}</th>
+            <td>{{ disease.name|truncate(60) }}</td>
+            <td>
+              <div class="table-actions-cell">
+                <a href="{{ url_for('admin.edit_disease', disease_id=disease.unique_id) }}">
+                  <button class="btn-icon edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </a>
+                <a href="{{ url_for('admin.remove_disease', disease_id=disease.unique_id) }}">
+                  <button class="btn-icon delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 <div id="lab-analysis" class="tabContent">
@@ -732,7 +655,7 @@ current_user.staff_role.name == "Accountant" %}
             </div>
             <div class="lab-details">
               <div class="disease-name">
-                <p>{{ lab_test_detail.test }}</p>
+                <p>{{ lab_test_detail.test|truncate(50) }}</p>
               </div>
             </div>
           </div>
@@ -742,7 +665,7 @@ current_user.staff_role.name == "Accountant" %}
             </div>
             <div class="lab-details">
               <div class="disease-name">
-                <p>{{ lab_test_detail.result }}</p>
+                <p>{{ lab_test_detail.result|truncate(100) }}</p>
               </div>
             </div>
           </div>
@@ -837,7 +760,7 @@ current_user.staff_role.name == "Accountant" %}
         <h2 class="section-title">Doctor's Notes</h2>
         {% if diagnosis.note %}
         <div class="notes-content">
-          {{ diagnosis.note }}
+          {{ diagnosis.note|truncate(200) }}
         </div>
         {% else %}
         <div class="empty-state">
@@ -925,7 +848,7 @@ current_user.staff_role.name == "Accountant" %}
         <h2 class="section-title">Doctor's Notes</h2>
         {% if prescription.note %}
         <div class="notes-content">
-          {{ prescription.note }}
+          {{ prescription.note|truncate(200) }}
         </div>
         {% else %}
         <div class="empty-state">

@@ -41,38 +41,7 @@
 
 .patient-content {
   display: grid;
-  grid-template-columns: 300px 1fr;
   gap: 1.5rem;
-}
-
-.patient-sidebar {
-  background: var(--light-green);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  height: fit-content;
-}
-
-.sidebar-section h3 {
-  font-size: 1.2rem;
-  color: var(--white);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.info-item label {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--white);
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-.info-item p {
-  font-size: 0.9375rem;
-  color: var(--light-grey);
 }
 
 .patient-main {
@@ -80,6 +49,8 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  max-height: calc(100svh - 34svh);
+  overflow-y: scroll;
 }
 
 .section-title {
@@ -87,6 +58,32 @@
   color: var(--black);
   margin-bottom: 0.5rem;
   font-weight: 600;
+}
+
+.tab-content {
+  overflow-x: scroll;
+}
+
+table {
+  width: 100%;
+  min-width: 900px;
+  border-radius: 12px;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--light-grey);
+}
+
+td,
+th {
+  padding: 0.4rem 0.6rem;
+  outline: 1px solid var(--dark-grey);
 }
 
 .medical-history-item,
@@ -243,7 +240,8 @@
 
   .patient-header {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
+    /* text-align: center; */
   }
 
   .patient-avatar {
@@ -252,9 +250,18 @@
   }
 
   .patient-actions {
-    margin-left: 0;
     margin-top: 1rem;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     width: 100%;
+  }
+
+  .patient-actions a button {
+    width: 100%;
+  }
+}
+@media (max-width: 500px) {
+  .patient-actions {
+    grid-template-columns: 1fr;
   }
 }

@@ -28,6 +28,9 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
     <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
     <p>{{ patient.age }} years old, <span style="text-transform: capitalize;">
         {{ patient.gender }}</span></p>
+    {% if patient_address %}
+    <p>{{ patient_address.region }}, {{ patient_address.district }}, {{ patient_address.location }}</p>
+    {% endif %}
     <div class="patient-meta">
       <div class="meta-item">
         <i class="fas fa-id-card"></i>
@@ -58,27 +61,6 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
 </div>
 
 <div class="patient-content">
-  <div class="patient-sidebar">
-    <div class="sidebar-section">
-      <h3>Personal Information</h3>
-      <div class="info-item">
-        <label>Address</label>
-        {% if patient_address %}
-        <p>{{ patient_address.region }}, {{ patient_address.district }}</p>
-        {% else %}
-        <p>---</p>
-        {% endif %}
-      </div>
-      <div style="margin-top: 1rem;" class="info-item">
-        <label>Location</label>
-        {% if patient_address %}
-        <p>{{ patient_address.location }}</p>
-        {% else %}
-        <p>---</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
   <div class="patient-main">
     <div class="tabs">
       <div class="tab active" data-tab="medical">Medical History</div>
@@ -90,30 +72,43 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
     <div class="tab-content active" id="medical">
       <div class="section-title">Recent Medical History</div>
       {% if patient_appointments %}
-      {% for appointment in patient_appointments|sort(attribute="date_created", reverse=True) %}
-      <div class="medical-history-item">
-        <div class="history-header">
-          <div class="history-title">
-            <h4>Appointment: #{{ appointment.unique_id }}</h4>
-            {% if appointment.is_active %}
-            <span class="status-badge pending">Ongoing</span>
-            {% else %}
-            <span class="status-badge completed">Completed</span>
-            {% endif %}
-          </div>
-          <div class="history-date">{{ appointment.date_created.strftime("%B %d, %Y") }}</div>
-        </div>
-        <div class="history-details">
-          <a id="summary" href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
-            {% if appointment.is_active %}
-            Resume
-            {% else %}
-            View Summary
-            {% endif %}
-          </a>
-        </div>
-      </div>
-      {% endfor %}
+      <table>
+        <thead>
+          <tr>
+            <th>Appointment ID</th>
+            <th>Date Opened</th>
+            <th>Date Closed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in patient_appointments|sort(attribute="id", reverse=True) %}
+          <tr>
+            <td>
+              <a target="_blank" href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
+                {{ appointment.unique_id }}
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </td>
+            <td>{{ appointment.date_created.strftime("%b, %d %Y") }}</td>
+            <td>
+              {% if appointment.date_closed %}
+              {{ appointment.date_closed.strftime("%b, %d %Y") }}
+              {% else %}
+              Ongoing
+              {% endif %}
+            </td>
+            <td>
+              {% if appointment.is_active %}
+              <span class="status-badge pending">Ongoing</span>
+              {% else %}
+              <span class="status-badge completed">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       {% else %}
       <p class="else">No medical history</p>
       {% endif %}
@@ -122,28 +117,46 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
     <div class="tab-content" id="prescriptions">
       <div class="section-title">Active Prescriptions</div>
       {% if patient_prescriptions %}
-      {% for prescription in patient_prescriptions|sort(attribute="date_created", reverse=True) %}
-      <div class="prescription-item">
-        <div class="prescription-details">
-          <div class="prescription-name">Prescription: #{{ prescription.unique_id }}</div>
-          <div class="prescription-dosage">
-            {% for prescription_detail in prescription.prescription_details %}
-            <h4>{{ prescription_detail.prescribed_medicine.name }}</h4>
-            {% endfor %}
-          </div>
-          <div class="prescription-price">
-            <p>Total Price</p>
-            <h4>{{ "Tsh {:,}".format(prescription.total) }}</h4>
-          </div>
-          {% if prescription.note %}
-          <div class="prescription-instructions">
-            <p>{{ prescription.note }}</p>
-          </div>
-          {% endif %}
-        </div>
-        <div class="history-date">{{ prescription.date_created.strftime("%B %d, %Y") }}</div>
-      </div>
-      {% endfor %}
+      <table>
+        <thead>
+          <tr>
+            <th>Prescription ID</th>
+            <th>Date Prescribed</th>
+            <th>Prescribed Medication</th>
+            <th>Note</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for prescription in patient_prescriptions|sort(attribute="date_created", reverse=True) %}
+          <tr>
+            <td>
+              <a target="_blank"
+                href="{{ url_for('admin.appointment', appointment_id=prescription.appointment_prescription.unique_id) }}">
+                {{ prescription.appointment_prescription.unique_id }}
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            </td>
+            <td>{{ prescription.date_created.strftime("%b, %d %Y") }}</td>
+            <td>{{ prescription.prescription_details }}</td>
+            <td>
+              {% if prescription.note %}
+              {{ prescription.note|truncate(50) }}
+              {% else %}
+              ---
+              {% endif %}
+            </td>
+            <td>
+              {% if prescription.is_paid %}
+              <span class="status-badge completed">Paid</span>
+              {% else %}
+              <span class="status-badge pending">Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       {% else %}
       <p class="else">No prescriptions</p>
       {% endif %}
@@ -178,29 +191,47 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
     <div class="tab-content" id="payments">
       <div class="section-title">Payments</div>
       {% if patient_payments %}
-      {% for payment in patient_payments|sort(attribute="date_paid", reverse=True) %}
-      <div class="prescription-item payment-item">
-        <div class="prescription-details">
-          <div class="prescription-name lab-name">
-            <h4>Transaction ID: #{{ payment.unique_id }}</h4>
-            <p class="history-date">{{ payment.date_paid.strftime("%B %d, %Y") }}</p>
-          </div>
-          <div class="prescription-name">
-            {% if payment.is_completed %}
-            <span class="status-badge completed">Completed</span>
-            {% endif %}
-            <p>{{ "Tsh {:,}".format(payment.amount) }}</p>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+      <table>
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Amount Paid</th>
+            <th>Date Paid</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in patient_payments|sort(attribute="date_paid", reverse=True) %}
+          <tr>
+            <td>
+              {{ payment.unique_id }}
+            </td>
+            <td>{{ "Tsh {:,}".format(payment.amount) }}</td>
+            <td>
+              {% if payment.date_paid %}
+              {{ payment.date_paid.strftime("%b, %d %Y") }}
+              {% else %}
+              ---
+              {% endif %}
+            </td>
+            <td>
+              {% if payment.is_pending %}
+              <span class="status-badge pending">Pending</span>
+              {% else %}
+              <span class="status-badge completed">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       {% else %}
       <p class="else">No Payment records</p>
       {% endif %}
     </div>
-
   </div>
 </div>
+
 {% endblock %}
 
 {% block script %}

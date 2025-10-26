@@ -13,5 +13,5 @@ class Config:
   SECRET_KEY = os.environ.get("SECRET_KEY")
   CACHE_TYPE = "RedisCache"
   CACHE_REDIS_URL = os.environ.get("HEROKU_REDIS_SILVER_URL")
-  r = redis.Redis(ssl=(CACHE_REDIS_URL.scheme == "rediss"), ssl_cert_reqs=None)
+  r = redis.Redis(ssl_cert_reqs=None)
 

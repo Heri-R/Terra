@@ -12,6 +12,6 @@ class Config:
   SESSION_TYPE = "filesystem"
   SECRET_KEY = os.environ.get("SECRET_KEY")
   CACHE_TYPE = "RedisCache"
-  CACHE_REDIS_URL = os.environ.get("cachetogo")
+  CACHE_REDIS_URL = os.environ.get("CACHETOGO_URL")
  
 

@@ -226,6 +226,7 @@
 .dashboard-alerts {
   display: grid;
   gap: 0.5rem;
+  margin-block: 1rem;
 }
 
 .stock-alerts {
@@ -237,6 +238,20 @@
 .stock-alerts p {
   color: #feecec;
   text-align: center;
+}
+
+.table-box {
+  overflow-x: scroll;
+}
+
+.table-boxs table,
+#patients-table {
+  min-width: 800px;
+}
+
+.medical-table {
+  min-width: 1200px;
+  width: 100%;
 }
 
 .medical-data-table .stock-alerts {
@@ -967,18 +982,6 @@ input {
 }
 
 @media (max-width: 768px) {
-  #patients-table thead {
-    display: none;
-  }
-
-  #patients-table tr {
-    display: none;
-  }
-
-  .mobile-patient-card {
-    display: block;
-  }
-
   .table-search {
     width: 100%;
   }

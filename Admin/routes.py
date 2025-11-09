@@ -290,8 +290,21 @@ def low_stock_count():
 @branch_required()
 @cache.cached(timeout=600)
 def patient_search(search_text):
-  patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).all()
-  patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).count()
+  patients = Patients.query.filter(
+    Patients.first_name.like("%" + search_text.capitalize() + "%"),
+    Patients.clinic_id == session["clinic_id"]
+  ).all() or Patients.query.filter(
+    Patients.last_name.like("%" + search_text.capitalize() + "%"),
+    Patients.clinic_id == session["clinic_id"]
+  ).all() 
+  
+  patients_count = Patients.query.filter(
+    Patients.first_name.like("%" + search_text.capitalize() + "%"), 
+    Patients.clinic_id == session["clinic_id"]
+  ).count() or Patients.query.filter(
+    Patients.last_name.like("%" + search_text.capitalize() + "%"), 
+    Patients.clinic_id == session["clinic_id"]
+  ).count()
 
   patients_list = [
     {
@@ -1129,10 +1142,11 @@ def complete_appointment(appointment_id):
     if not appointment.lab_analysis and not appointment.diagnosis and not appointment.prescription:
       flash("Appointment missing either an approved lab test or diagnosis or prescription", "warning")
       return redirect(request.referrer)
+    
     if appointment.prescription:
       prescription = Prescription.query.filter_by(appointment_id=appointment.id, is_active=True).first()
       if not prescription.prescription_details:
-        flash("Appointment missing a prescription (Medicine out of stock!)", "warning")
+        flash("Appointment missing a prescription", "warning")
         return redirect(request.referrer)
 
     appointment_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
@@ -1142,10 +1156,12 @@ def complete_appointment(appointment_id):
     if appointment_diagnosis:
       appointment_diagnosis.is_active = False
       appointment_diagnosis.date_closed = get_local_time()
+    
     appointment_prescription = Prescription.query.filter_by(appointment_id=appointment.id, is_active=True).first()
     if appointment_prescription:
       appointment_prescription.is_active = False
       appointment_prescription.date_closed = get_local_time()
+    
     appointment.is_active = False
     appointment.date_closed = get_local_time()
     db.session.commit()

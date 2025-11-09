@@ -5,7 +5,7 @@ import random, pytz
 db = SQLAlchemy()
 
 def get_local_time():
-  utc_timezone = datetime.now(pytz.utc)+timedelta(hours=3)
+  utc_timezone = datetime.now(pytz.utc) + timedelta(hours=3)
   local_tz = pytz.timezone('Africa/Nairobi')
   return utc_timezone.astimezone(local_tz)
 

@@ -159,7 +159,9 @@ Inventory History {{ inventory.inventory.name }}
               {{ record.date_updated.strftime("%b %d, %Y at %I:%M %p") }}
             </td>
             <td>{{ record.stock_before }}</td>
-            <td>{{ record.stock_added }}</td>
+            <td>
+              <b>-{{ record.stock_added }}</b>
+            </td>
             <td>{{ record.stock_before - record.stock_added }}</td>
             <td><span class="status-badge refilled">{{ record.stock_status }}</span></td>
           </tr>

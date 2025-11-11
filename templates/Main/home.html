@@ -432,7 +432,7 @@ current_user.staff_role.name == "Accountant" %}
           <th>Email Address</th>
           <th>Role</th>
           <th>Branch</th>
-          {% if current_user.staff_role.name == "Admin" %}
+          {% if current_user.staff_role.name == "Admin" and current_user.staff_role.name == "SuperAdmin" %}
           <th>Actions</th>
           {% endif %}
         </tr>
@@ -469,7 +469,7 @@ current_user.staff_role.name == "Accountant" %}
             {% endif %}
           </td>
           <td>
-            {% if staff.staff_role.name != "Admin" and current_user.staff_role.name == "Admin" %}
+            {% if staff.staff_role.name != "SuperAdmin" and current_user.staff_role.name == "SuperAdmin" %}
             <div class="table-actions-cell">
               <a href="{{ url_for('admin.remove_staff', staff_id=staff.unique_id) }}">
                 <button class="btn-icon delete">

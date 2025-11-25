@@ -58,7 +58,7 @@ def generate_appointment_pdf(patient_info,  prescription_info, diagnosis_info, l
   # Clinic header
   elements.append(Paragraph("Terra Natural Herbs", styles['Title']))
   elements.append(Paragraph("P.O.BOX 222, Arusha, Arusha", styles['Title']))
-  elements.append(Paragraph("Phone: (123) 456-7890 | www.terranaturalherbs.co.tz", styles['Title']))
+  elements.append(Paragraph("Phone: +255 793 075 781 | bambukahombe@gmail.com", styles['Title']))
   elements.append(Spacer(1, 30))
 
   # Patient information

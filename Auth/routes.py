@@ -92,7 +92,7 @@ def signin():
       elif staff and staff.check_password_correction(attempted_password=form.password.data):
         login_user(staff, remember=True)
         flash("Login successfull", "success")
-        if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "SuperAdmin":
+        if current_user.staff_role.name == "SuperAdmin":
           return redirect(url_for("admin.clinic_branches"))
         else:
           session["clinic_id"] = current_user.clinic_id

@@ -61,7 +61,7 @@ region_districts = {
 @admin.route("/branches")
 @login_required
 @fresh_login_required
-@role_required(["SuperAdmin", "Admin"])
+@role_required(["SuperAdmin"])
 def clinic_branches():
   form = AddClinicForm()
 
@@ -81,7 +81,7 @@ def clinic_branches():
 @admin.route("/select-branch", methods=["POST"])
 @login_required
 @fresh_login_required
-@role_required(["SuperAdmin", "Admin"])
+@role_required(["SuperAdmin"])
 def add_branch():
   form = AddClinicForm()
   form.owner_id.choices = [(staff.id, f"{staff.first_name} {staff.last_name}") for staff in Staff.query.filter_by(role_id=Role.query.filter_by(name="Admin").first().id).all()]

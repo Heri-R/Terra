@@ -17,7 +17,9 @@ Select Branch
         Clinic Branches
         <span>{{ clinics|count }}</span>
       </h2>
+      {% if current_user.staff_role.name == "SuperAdmin" %}
       <button id="addBranchBtn" class="btn-primary">+ Add New Branch</button>
+      {% endif %}
     </div>
     <div class="branches-list">
       {% if clinics %}

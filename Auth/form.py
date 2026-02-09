@@ -15,10 +15,8 @@ class StaffRegistrationForm(FlaskForm):
     phone_number = phone_number_to_validate.data
     if phone_number[0] != str(0):
       raise ValidationError("Invalid phone number. Phone number must begin with 0")
-    elif phone_number[1] != str(7) and phone_number[1] != str(1):
-      raise ValidationError("Invalid phone number. Phone number must begin with 0 followed by 7 or 1")
-    elif phone_number[2] != str(6):
-      raise ValidationError("Invalid phone number. Phone number must begin with 0 followed by 6")
+    elif phone_number[1] != str(7) and phone_number[1] != str(6) and phone_number[1] != str(1):
+      raise ValidationError("Invalid phone number. Phone number must begin with 0 followed by 6, 7 or 1")
     elif Staff.query.filter_by(phone=phone_number_to_validate.data).first():
       raise ValidationError("Phone Number already exists, Please try another one")
 

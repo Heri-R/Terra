@@ -45,7 +45,7 @@ def add_branch_types():
 
 if __name__ == "__main__":
   with app.app_context():
-    # drop_tables()
-    # create_tables()
+    drop_tables()
+    create_tables()
     add_roles()
-    # add_branch_types()
+    add_branch_types()

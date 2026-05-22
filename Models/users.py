@@ -42,6 +42,8 @@ class Patients(BaseModel, db.Model):
   last_name = db.Column(db.String(50), nullable=False)
   age = db.Column(db.Integer())
   gender = db.Column(db.String(6))
+  country_code_1 = db.Column(db.String(4))
+  country_code_2 = db.Column(db.String(4))
   phone_number_1 = db.Column(db.String(20))
   phone_number_2 = db.Column(db.String(20))
   address_id = db.Column(db.Integer(), db.ForeignKey("patient_address.id"))

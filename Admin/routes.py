@@ -60,8 +60,8 @@ region_districts = {
 @admin.route("/home")
 @admin.route("/branches")
 @login_required
-@fresh_login_required
-@role_required(["SuperAdmin", "Admin"])
+# @fresh_login_required
+@role_required(["SuperAdmin"])
 def clinic_branches():
   form = AddClinicForm()
 
@@ -80,7 +80,7 @@ def clinic_branches():
 
 @admin.route("/select-branch", methods=["POST"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @role_required(["SuperAdmin", "Admin"])
 def add_branch():
   form = AddClinicForm()
@@ -139,7 +139,7 @@ def populate_inventory(branch_id):
 
 @admin.route("/edit-branch/<string:branch_name>", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @role_required(["SuperAdmin", "Admin"])
 def edit_branch(branch_name):
   branch = Clinic.query.filter_by(alias=branch_name).first()
@@ -177,7 +177,7 @@ def edit_branch(branch_name):
 
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @role_required(["SuperAdmin", "Admin"])
 def load_clinic(branch_name):
   cache.clear()
@@ -197,7 +197,7 @@ def load_clinic(branch_name):
 
 @admin.route("/close-branch/<string:branch_name>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @role_required(["SuperAdmin", "Admin"])
 def close_clinic(branch_name):
   cache.clear()
@@ -221,7 +221,7 @@ def close_clinic(branch_name):
 
 @admin.route("/reopen-branch/<string:branch_name>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @role_required(["SuperAdmin", "Admin"])
 def reopen_clinic(branch_name):
   cache.clear()
@@ -242,7 +242,7 @@ def reopen_clinic(branch_name):
 
 @admin.route("/dashboard")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 def dashboard():
   form = StaffRegistrationForm()
@@ -286,7 +286,7 @@ def low_stock_count():
 
 @admin.route("/find-patient/<string:search_text>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @cache.cached(timeout=600)
 def patient_search(search_text):
@@ -320,7 +320,7 @@ def patient_search(search_text):
 
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def add_medicine():
@@ -390,7 +390,7 @@ def record_opening_stock(inventory_id, stock_number, stock_status, current_stock
 
 @admin.route("/edit/medicine/<int:inventory_id>", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin","Admin", "Stock Controller"])
 def edit_medicine(inventory_id):
@@ -456,7 +456,7 @@ def inventory_history(inventory_id):
 
 @admin.route("/remove/medicine/<int:inventory_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def remove_medicine(inventory_id):
@@ -489,7 +489,7 @@ def remove_inventory_history(inventory_id):
 
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def add_disease():
@@ -526,7 +526,7 @@ def add_disease():
 
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def edit_disease(disease_id):
@@ -561,7 +561,7 @@ def edit_disease(disease_id):
 
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def remove_disease(disease_id):
@@ -586,7 +586,7 @@ def remove_disease(disease_id):
 
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk"])
 def add_patient():
@@ -596,13 +596,15 @@ def add_patient():
   if 'region' in request.form:
     region = request.form['region']
     form.district.choices = [(d, d) for d in region_districts.get(region, [])]
-  if form.validate_on_submit():
+  if request.method == "POST":
     try:
       new_patient = Patients(
         first_name = form.first_name.data,
         last_name = form.last_name.data,
         age = form.age.data,
         gender = form.gender.data,
+        country_code_1 = form.country_code_1.data,
+        country_code_2 = form.country_code_2.data,
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
         clinic_id = session["clinic_id"]
@@ -627,6 +629,7 @@ def add_patient():
       return redirect(url_for('admin.patient_profile', patient_id=new_patient.unique_id))
         
     except Exception as e:
+      print("Test3")
       db.session.rollback()
       flash('Error creating patient: ' + str(e), 'danger')
       return redirect(url_for('admin.add_patient'))
@@ -643,7 +646,7 @@ def add_patient():
 
 @admin.route("/get-districts/<region>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk"])
 @cache.cached(timeout=600)
@@ -652,7 +655,7 @@ def get_districts(region):
 
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk"])
 def edit_patient(patient_id):
@@ -668,7 +671,7 @@ def edit_patient(patient_id):
     region = request.form['region']
     form.district.choices = [(d, d) for d in region_districts.get(region, [])]
       
-  if form.validate_on_submit():
+  if request.method == "POST":
     cache.clear()
     try:
       form.populate_obj(patient)
@@ -704,7 +707,7 @@ def edit_patient(patient_id):
 
 @admin.route("/remove-patient/<int:patient_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def remove_patient(patient_id):
@@ -724,7 +727,7 @@ def remove_patient(patient_id):
 
 @admin.route("/remove-staff/<int:staff_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin"])
 def remove_staff(staff_id):
@@ -745,7 +748,7 @@ def remove_staff(staff_id):
 
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk"])
 def patient_profile(patient_id):
@@ -777,7 +780,7 @@ def patient_profile(patient_id):
 
 @admin.route("/create-appointment/<int:patient_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Clerk", "Medical Consultant"])
 def create_appointment(patient_id):
@@ -807,7 +810,7 @@ def create_appointment(patient_id):
 
 @admin.route("/appointment/<int:appointment_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Clerk", "Medical Consultant"])
 def appointment(appointment_id):
@@ -861,7 +864,7 @@ def appointment(appointment_id):
 
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk", "Lab Tech", "Medical Consultant"])
 def add_lab_analysis(appointment_id):
@@ -915,7 +918,7 @@ def create_lab_analysis_details(lab_analysis_id, form):
 
 @admin.route("/remove-lab-test/<int:lab_analysis_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Medical Consultant"])
 def remove_lab_analysis(lab_analysis_id):
@@ -938,7 +941,7 @@ def remove_lab_analysis(lab_analysis_id):
 
 @admin.route("/approve/lab-analysis/<int:lab_analysis_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Medical Consultant"])
 def approve_lab_analysis(lab_analysis_id):
@@ -969,7 +972,7 @@ def approve_lab_analysis(lab_analysis_id):
 
 @admin.route("/diagnose/patient/<int:appointment_id>", methods=["POST"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Medical Consultant"])
 def add_diagnosis(appointment_id):
@@ -1038,7 +1041,7 @@ def remove_diagnosis_disease(diagnosis_id):
 
 @admin.route("/prescribe/patient/<int:appointment_id>", methods=["POST"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Medical Consultant"])
 def add_prescription(appointment_id):
@@ -1128,7 +1131,7 @@ def remove_prescribed_medicine(prescription_id):
 
 @admin.route("/complete/appointment/<int:appointment_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Lab Tech", "Medical Consultant"])
 def complete_appointment(appointment_id):
@@ -1178,7 +1181,7 @@ def complete_appointment(appointment_id):
 
 @admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Clerk"])
 def patient_feedback(appointment_id):
@@ -1207,7 +1210,7 @@ def patient_feedback(appointment_id):
 
 @admin.route("/pay/prescription/<int:prescription_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Accountant"])
 def prescription_payment(prescription_id):
@@ -1271,7 +1274,7 @@ def record_transaction(prescription_id, diagnosis_id):
 
 @admin.route("/export/transaction/<int:payment_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "Accountant"])
 def export_transaction(payment_id):
@@ -1292,7 +1295,7 @@ def export_transaction(payment_id):
 
 @admin.route("/export/appointment/<int:appointment_id>")
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 @role_required(["SuperAdmin", "Admin", "LabTech", "Medical Consultant"])
 def export_appointment(appointment_id):
@@ -1316,7 +1319,7 @@ def export_appointment(appointment_id):
 
 @admin.route("/analytics", methods=["POST", "GET"])
 @login_required
-@fresh_login_required
+# @fresh_login_required
 @branch_required()
 def analytics():
   details = db.session.query(

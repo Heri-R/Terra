@@ -57,22 +57,32 @@ def add_medicine():
     db.session.commit()
   print("Medicines Added")
 
-def add_admin():
-  new_staff = Staff(
-    first_name = "Kevin",
-    last_name = "Maina",
-    email = "test@gmail.com",
-    phone = "0787654320",
-    role_id = Role.query.filter_by(name="SuperAdmin").first().id,
-    password = bcrypt.generate_password_hash("111111").decode("utf-8"),
-  )
-  db.session.add(new_staff)
-  db.session.commit()
-  print(f"New Admin added")
+def add_super_admin():
+  users_file = open("superadmin.csv")
+  read_files = csv.reader(users_file)
+
+  for fname, lname, email, phone_number, password in read_files:
+
+    existing_admin = Staff.query.filter_by(first_name=fname, last_name=lname, email=email).first()
+
+    if not existing_admin:
+      new_staff = Staff(
+        first_name = fname,
+        last_name = lname,
+        email = email,
+        phone = phone_number,
+        role_id = Role.query.filter_by(name="SuperAdmin").first().id,
+        password = bcrypt.generate_password_hash(password).decode("utf-8"),
+      )
+      db.session.add(new_staff)
+      db.session.commit()
+      print(f"Super Admin {new_staff.first_name} {new_staff.last_name} added")
+    else:
+      print(f"No new super admin added")
 
 if __name__ == "__main__":
   with app.app_context():
     # add_patients()
     add_diseases()
     add_medicine()
-    add_admin()
+    add_super_admin()

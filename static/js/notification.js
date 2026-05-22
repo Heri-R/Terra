@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <small>${formatTime(notification.created_at)}</small>
             </div>
           </div>
-        `
+        `,
           )
           .join("");
 
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateBadgeCount() {
     const unreadCount = document.querySelectorAll(
-      ".notification.unread"
+      ".notification.unread",
     ).length;
     notificationBadge.textContent = unreadCount;
     notificationBadge.style.display = unreadCount > 0 ? "flex" : "none";
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/notifications/${id}/read`, { method: "POST" });
   }
 
-  // setInterval(loadNotifications, 1000);
+  setInterval(loadNotifications, 1000);
 
   updateBadgeCount();
 });

@@ -39,9 +39,16 @@ class AddPatientForm(FlaskForm):
   age = IntegerField('Age', validators=[DataRequired(message="Age Required")])
   gender = SelectField('Gender', choices=[('', 'Select Gender'), ('male', 'Male'), ('female', 'Female')
   ], validators=[DataRequired(message="Gender field required")])
+
+  country_code_1 = StringField('Country Code 1', validators=[DataRequired(message="Country Code Required"), Length(min=2, max=4)])
+
   phone_number_1 = StringField('Primary Phone', validators=[DataRequired(message="Phone Number required"), Length(max=10)])
+
+  country_code_2 = StringField('Country Code 2', validators=[Length(min=2, max=4)])
   phone_number_2 = StringField('Secondary Phone', validators=[Optional(), Length(max=10)])
+
   region = SelectField('Region', choices=[], validators=[Optional()])
+  
   district = SelectField('District', choices=[], validators=[Optional()])
   location = StringField('Location', validators=[Optional(), Length(max=50)])
 

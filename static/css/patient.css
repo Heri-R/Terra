@@ -80,6 +80,10 @@
   display: grid;
 }
 
+.country-code {
+  max-width: 8rem;
+}
+
 .error-message {
   color: red;
   font-size: 0.8125rem;
